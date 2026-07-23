@@ -113,7 +113,7 @@ async function main() {
       if (user.active === false) {
         return res.status(403).json({ error: 'Пользователь отключён' });
       }
-      setSessionCookie(res, createSessionToken(user));
+      setSessionCookie(res, createSessionToken(user), req);
       res.json({ ok: true, user: publicUser(user) });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -168,7 +168,7 @@ async function main() {
       await writeDb(db);
 
       // Auto-login after self-registration
-      if (!actor) setSessionCookie(res, createSessionToken(user));
+      if (!actor) setSessionCookie(res, createSessionToken(user), req);
       res.json({ ok: true, user: publicUser(user) });
     } catch (err) {
       res.status(500).json({ error: err.message });

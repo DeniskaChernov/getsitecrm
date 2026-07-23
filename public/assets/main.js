@@ -8,13 +8,36 @@ const rootEl = document.getElementById('root');
 
 async function api(path, options = {}) {
   const res = await fetch(path, {
-    credentials: 'same-origin',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
+}
+
+function hasAuthMarker() {
+  return /(?:^|;\s*)getsite_auth=1(?:;|$)/.test(document.cookie);
+}
+
+async function restoreSession(retries = 3) {
+  let lastError = null;
+  for (let i = 0; i < retries; i++) {
+    try {
+      const me = await api('/api/auth/me');
+      if (me.authenticated && me.user) return me.user;
+      return null;
+    } catch (err) {
+      lastError = err;
+      // Cookie may exist while server briefly restarts — wait and retry
+      if (i < retries - 1) await new Promise((r) => setTimeout(r, 300 * (i + 1)));
+    }
+  }
+  if (hasAuthMarker()) {
+    console.warn('Сессия есть, но сервер не ответил:', lastError?.message);
+  }
+  return null;
 }
 
 function renderAuth(mode = 'login') {
@@ -111,14 +134,10 @@ async function bootApp(user) {
 }
 
 async function start() {
-  try {
-    const me = await api('/api/auth/me');
-    if (me.authenticated && me.user) {
-      await bootApp(me.user);
-      return;
-    }
-  } catch {
-    // not logged in
+  const user = await restoreSession(3);
+  if (user) {
+    await bootApp(user);
+    return;
   }
   renderAuth('login');
 }
