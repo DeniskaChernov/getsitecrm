@@ -9,7 +9,10 @@
     "build:framework": "esbuild src/framework-shim.js --bundle --format=esm --outfile=public/assets/framework-CXnKph_e.js --platform=browser --minify",
     "start": "node server.js",
     "dev": "npm run build:framework && node server.js",
-    "reset-data": "node scripts/reset-data.js"
+    "reset-data": "node scripts/reset-data.js",
+    "qa": "node scripts/qa-acceptance.js",
+    "patch:roles": "node scripts/patch-roles-ui.js",
+    "patch:finance": "node scripts/patch-fixed-share.js"
   },
   "engines": {
     "node": ">=18"

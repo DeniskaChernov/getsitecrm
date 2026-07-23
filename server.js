@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const { ensureDb, readDb, writeDb, usingPostgres, id, str } = require('./lib/store');
+const { ensureDb, readDb, writeDb, usingPostgres, id, str, pingDb } = require('./lib/store');
 const { getState, handleAction } = require('./lib/actions');
 const { getDatabaseUrl, closePool } = require('./lib/db');
 const {
@@ -14,23 +14,57 @@ const {
   filterStateForUser,
   canAction,
   defaultUsers,
+  normalizeRole,
   ROLES,
 } = require('./lib/auth');
-const { requiredInProduction } = require('./config/env-vars');
+const { requiredInProduction, recommendedInProduction } = require('./config/env-vars');
 
-function warnMissingEnv() {
-  const missing = [];
-  if (process.env.NODE_ENV === 'production') {
-    for (const key of requiredInProduction) {
-      if (!String(process.env[key] || '').trim()) missing.push(key);
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+function assertProductionEnv() {
+  if (!IS_PROD) {
+    if (!process.env.SESSION_SECRET) {
+      console.warn('[env] SESSION_SECRET не задан — используется dev-секрет.');
     }
+    return;
   }
-  if (!process.env.SESSION_SECRET) {
-    console.warn('[env] SESSION_SECRET не задан — используется dev-секрет. Задайте свой ключ в Railway Variables.');
-  }
+  const missing = requiredInProduction.filter((key) => !String(process.env[key] || '').trim());
   if (missing.length) {
-    console.warn(`[env] В production не заданы: ${missing.join(', ')}. Заполните Variables в Railway.`);
+    console.error(`[env] В production обязательны: ${missing.join(', ')}. Заполните Variables и перезапустите.`);
+    process.exit(1);
   }
+  const recommended = (recommendedInProduction || []).filter((key) => !String(process.env[key] || '').trim());
+  if (recommended.length) {
+    console.warn(`[env] Рекомендуется задать: ${recommended.join(', ')} (иначе файловое хранилище).`);
+  }
+}
+
+/** Simple in-memory rate limit for login */
+const loginAttempts = new Map();
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX = 20;
+
+function clientIp(req) {
+  const xf = String(req.headers['x-forwarded-for'] || '')
+    .split(',')[0]
+    .trim();
+  return xf || req.socket?.remoteAddress || 'unknown';
+}
+
+function checkLoginRate(req) {
+  const key = `${clientIp(req)}:${str(req.body?.email).trim().toLowerCase()}`;
+  const now = Date.now();
+  let entry = loginAttempts.get(key);
+  if (!entry || now - entry.start > LOGIN_WINDOW_MS) {
+    entry = { start: now, count: 0 };
+    loginAttempts.set(key, entry);
+  }
+  entry.count += 1;
+  if (entry.count > LOGIN_MAX) {
+    const retryAfter = Math.ceil((LOGIN_WINDOW_MS - (now - entry.start)) / 1000);
+    return { ok: false, retryAfter };
+  }
+  return { ok: true };
 }
 
 async function resolveUser(req) {
@@ -41,9 +75,8 @@ async function resolveUser(req) {
 }
 
 async function main() {
-  warnMissingEnv();
+  assertProductionEnv();
   const boot = await ensureDb();
-  // Ensure demo users exist with password hashes
   const data = await readDb();
   const defaults = defaultUsers();
   let changed = false;
@@ -72,14 +105,23 @@ async function main() {
   app.get('/api/health', async (_req, res) => {
     try {
       await ensureDb();
+      const dbPing = usingPostgres() ? await pingDb() : { ok: true, skipped: true };
       res.json({
-        ok: true,
+        ok: dbPing.ok !== false,
         storage: usingPostgres() ? 'postgres' : 'file',
+        db: dbPing,
         time: new Date().toISOString(),
       });
     } catch (err) {
       res.status(500).json({ ok: false, error: err.message || 'health check failed' });
     }
+  });
+
+  app.get('/api/auth/config', (_req, res) => {
+    res.json({
+      showDemoAccounts: !IS_PROD,
+      registrationOpen: false,
+    });
   });
 
   app.get('/api/auth/me', async (req, res) => {
@@ -100,6 +142,11 @@ async function main() {
 
   app.post('/api/auth/login', async (req, res) => {
     try {
+      const rate = checkLoginRate(req);
+      if (!rate.ok) {
+        res.setHeader('Retry-After', String(rate.retryAfter || 60));
+        return res.status(429).json({ error: 'Слишком много попыток входа. Подождите и попробуйте снова.' });
+      }
       const email = str(req.body?.email).trim().toLowerCase();
       const password = str(req.body?.password);
       if (!email || !password) {
@@ -120,13 +167,17 @@ async function main() {
     }
   });
 
+  /** Invite / create user — founder only (no public self-registration) */
   app.post('/api/auth/register', async (req, res) => {
     try {
+      const actor = await resolveUser(req);
+      if (!actor || actor.systemRole !== 'founder') {
+        return res.status(403).json({ error: 'Создавать пользователей может только основатель' });
+      }
       const email = str(req.body?.email).trim().toLowerCase();
       const password = str(req.body?.password);
       const displayName = str(req.body?.displayName || req.body?.fullName).trim();
-      const requestedRole = str(req.body?.systemRole || 'sales_manager');
-      const actor = await resolveUser(req);
+      const systemRole = normalizeRole(req.body?.systemRole || 'sales_manager') || 'sales_manager';
 
       if (!email || !password || !displayName) {
         return res.status(400).json({ error: 'Нужны имя, email и пароль' });
@@ -134,18 +185,8 @@ async function main() {
       if (password.length < 6) {
         return res.status(400).json({ error: 'Пароль не короче 6 символов' });
       }
-
-      // Open registration only for sales_manager/designer; founder role only by founder
-      let systemRole = requestedRole;
-      if (!['sales_manager', 'designer', 'founder'].includes(systemRole)) {
-        systemRole = 'sales_manager';
-      }
-      if (systemRole === 'founder' && actor?.systemRole !== 'founder') {
-        return res.status(403).json({ error: 'Роль основателя может выдать только учредитель' });
-      }
-      // If not logged in as founder, new users cannot self-assign founder
-      if (!actor && systemRole === 'founder') {
-        systemRole = 'sales_manager';
+      if (!ROLES[systemRole]) {
+        return res.status(400).json({ error: 'Неизвестная роль' });
       }
 
       const db = await readDb();
@@ -166,9 +207,63 @@ async function main() {
       };
       db.users = [user, ...(db.users || [])];
       await writeDb(db);
+      res.json({ ok: true, user: publicUser(user) });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
-      // Auto-login after self-registration
-      if (!actor) setSessionCookie(res, createSessionToken(user), req);
+  app.post('/api/auth/password', async (req, res) => {
+    try {
+      const actor = await resolveUser(req);
+      if (!actor) return res.status(401).json({ error: 'Требуется вход' });
+
+      const targetEmail = str(req.body?.email || actor.email).trim().toLowerCase();
+      const newPassword = str(req.body?.password || req.body?.newPassword);
+      const currentPassword = str(req.body?.currentPassword);
+
+      if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ error: 'Новый пароль не короче 6 символов' });
+      }
+
+      const isSelf = targetEmail === actor.email.toLowerCase();
+      if (!isSelf && actor.systemRole !== 'founder') {
+        return res.status(403).json({ error: 'Сброс чужого пароля доступен только основателю' });
+      }
+      if (isSelf && currentPassword && !verifyPassword(currentPassword, actor.passwordHash)) {
+        return res.status(401).json({ error: 'Текущий пароль неверный' });
+      }
+      if (isSelf && !currentPassword && actor.systemRole !== 'founder') {
+        return res.status(400).json({ error: 'Укажите текущий пароль' });
+      }
+
+      const db = await readDb();
+      const user = (db.users || []).find((u) => u.email.toLowerCase() === targetEmail);
+      if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+      user.passwordHash = scryptHash(newPassword);
+      await writeDb(db);
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/auth/deactivate', async (req, res) => {
+    try {
+      const actor = await resolveUser(req);
+      if (!actor || actor.systemRole !== 'founder') {
+        return res.status(403).json({ error: 'Только основатель может отключать пользователей' });
+      }
+      const email = str(req.body?.email).trim().toLowerCase();
+      if (!email) return res.status(400).json({ error: 'Укажите email' });
+      if (email === actor.email.toLowerCase()) {
+        return res.status(400).json({ error: 'Нельзя отключить самого себя' });
+      }
+      const db = await readDb();
+      const user = (db.users || []).find((u) => u.email.toLowerCase() === email);
+      if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+      user.active = false;
+      await writeDb(db);
       res.json({ ok: true, user: publicUser(user) });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -202,7 +297,6 @@ async function main() {
         return res.status(403).json({ error: 'Недостаточно прав для этого действия' });
       }
 
-      // Designer may only mutate own projects
       if (user.systemRole === 'designer') {
         const db = await readDb();
         const projectId =
@@ -231,7 +325,7 @@ async function main() {
   });
 
   app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), {
-    maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0,
+    maxAge: IS_PROD ? '7d' : 0,
   }));
 
   app.get('*', (req, res) => {

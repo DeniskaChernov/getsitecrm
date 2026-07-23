@@ -1,6 +1,7 @@
 import { r as jsxFactory, t as reactDomFactory } from './framework-CXnKph_e.js';
 import App from './os-client-DeMZwioN.js';
 import { mountNavShell } from './nav-shell.js';
+import './ui-fix.js';
 
 const jsxRuntime = jsxFactory();
 const ReactDOM = reactDomFactory();
@@ -26,11 +27,10 @@ async function restoreSession(retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
       const me = await api('/api/auth/me');
-      if (me.authenticated && me.user) return me.user;
+      if (me.authenticated && me.user) return { user: me.user, roles: me.roles };
       return null;
     } catch (err) {
       lastError = err;
-      // Cookie may exist while server briefly restarts — wait and retry
       if (i < retries - 1) await new Promise((r) => setTimeout(r, 300 * (i + 1)));
     }
   }
@@ -40,9 +40,10 @@ async function restoreSession(retries = 3) {
   return null;
 }
 
-function renderAuth(mode = 'login') {
+function renderAuth(demoHints = false) {
   document.body.classList.remove('gs-nav-ready', 'gs-nav-open');
   document.getElementById('gs-nav')?.remove();
+  document.getElementById('gs-user-admin')?.remove();
 
   rootEl.innerHTML = `
     <div class="auth-shell">
@@ -50,55 +51,27 @@ function renderAuth(mode = 'login') {
         <div class="auth-brand">
           <span class="brand-get">get</span>site<span class="brand-star">*</span><small>OS</small>
         </div>
-        <h1>${mode === 'login' ? 'Вход в систему' : 'Регистрация'}</h1>
-        <p class="lead">${
-          mode === 'login'
-            ? 'Рабочее пространство getsite.uz — продажи, проекты и деньги в одном контуре.'
-            : 'Создайте аккаунт менеджера или дизайнера. Роль основателя выдаёт только учредитель.'
-        }</p>
-        ${
-          mode === 'register'
-            ? `<label><span>Имя</span><input name="displayName" required placeholder="Как вас зовут" /></label>`
-            : ''
-        }
+        <h1>Вход в систему</h1>
+        <p class="lead">Рабочее пространство getsite.uz — продажи, проекты и деньги в одном контуре. Аккаунт выдаёт основатель в Настройках.</p>
         <label><span>Email</span><input name="email" type="email" required placeholder="you@getsite.uz" autocomplete="username" /></label>
-        <label><span>Пароль</span><input name="password" type="password" required minlength="6" placeholder="Минимум 6 символов" autocomplete="${
-          mode === 'login' ? 'current-password' : 'new-password'
-        }" /></label>
-        ${
-          mode === 'register'
-            ? `<label><span>Роль</span>
-                <select name="systemRole">
-                  <option value="sales_manager">Менеджер продаж</option>
-                  <option value="designer">Дизайнер</option>
-                </select>
-              </label>`
-            : ''
-        }
+        <label><span>Пароль</span><input name="password" type="password" required minlength="6" placeholder="Минимум 6 символов" autocomplete="current-password" /></label>
         <div class="auth-error" id="auth-error"></div>
         <div class="auth-actions">
-          <button class="button primary" type="submit">${mode === 'login' ? 'Войти' : 'Создать аккаунт'}</button>
+          <button class="button primary" type="submit">Войти</button>
         </div>
-        <div class="auth-switch">
-          ${
-            mode === 'login'
-              ? `Нет аккаунта? <button type="button" id="auth-switch" data-mode="register">Зарегистрироваться</button>`
-              : `Уже есть аккаунт? <button type="button" id="auth-switch" data-mode="login">Войти</button>`
-          }
-        </div>
-        <div class="auth-demos">
+        ${
+          demoHints
+            ? `<div class="auth-demos">
           <div><strong>Денис</strong> — denis@getsite.uz / denis123 (основатель)</div>
           <div><strong>Никита</strong> — nikita@getsite.uz / nikita123 (учредитель)</div>
           <div><strong>Менеджер</strong> — manager@getsite.uz / manager123</div>
           <div><strong>Дизайнер</strong> — designer@getsite.uz / designer123</div>
-        </div>
+        </div>`
+            : ''
+        }
       </form>
     </div>
   `;
-
-  document.getElementById('auth-switch')?.addEventListener('click', (e) => {
-    renderAuth(e.currentTarget.dataset.mode);
-  });
 
   document.getElementById('auth-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -107,39 +80,145 @@ function renderAuth(mode = 'login') {
     const fd = new FormData(e.currentTarget);
     const payload = Object.fromEntries(fd.entries());
     try {
-      const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
-      const result = await api(endpoint, { method: 'POST', body: JSON.stringify(payload) });
-      await bootApp(result.user);
+      const result = await api('/api/auth/login', { method: 'POST', body: JSON.stringify(payload) });
+      const me = await api('/api/auth/me').catch(() => ({ user: result.user, roles: null }));
+      await bootApp(me.user || result.user, me.roles);
     } catch (err) {
       errEl.textContent = err.message || 'Не удалось выполнить запрос';
     }
   });
 }
 
-function applyRoleToDom(user) {
+function applyRoleToDom(user, roles) {
   document.body.classList.remove('role-founder', 'role-sales_manager', 'role-designer');
   document.body.classList.add(`role-${user.systemRole}`);
-  mountNavShell(user);
+  mountNavShell(user, roles);
+  if (user.systemRole === 'founder') mountUserAdmin(user);
 }
 
-async function bootApp(user) {
+function mountUserAdmin(user) {
+  if (document.getElementById('gs-user-admin')) return;
+  const panel = document.createElement('div');
+  panel.id = 'gs-user-admin';
+  panel.innerHTML = `
+    <button type="button" class="gs-user-admin-fab" id="gs-user-admin-open" title="Пользователи">Команда</button>
+    <div class="gs-user-admin-modal" id="gs-user-admin-modal" hidden>
+      <div class="gs-user-admin-card">
+        <header>
+          <strong>Пользователи</strong>
+          <button type="button" id="gs-user-admin-close" aria-label="Закрыть">×</button>
+        </header>
+        <p class="hint">Создание и сброс пароля (основатель). Роли также можно менять в Настройках.</p>
+        <form id="gs-user-create">
+          <label><span>Имя</span><input name="displayName" required /></label>
+          <label><span>Email</span><input name="email" type="email" required /></label>
+          <label><span>Пароль</span><input name="password" type="password" minlength="6" required /></label>
+          <label><span>Роль</span>
+            <select name="systemRole">
+              <option value="sales_manager">Менеджер</option>
+              <option value="designer">Дизайнер</option>
+              <option value="founder">Основатель</option>
+            </select>
+          </label>
+          <button class="button primary" type="submit">Создать</button>
+          <div class="auth-error" id="gs-user-create-err"></div>
+        </form>
+        <hr />
+        <form id="gs-user-password">
+          <label><span>Email пользователя</span><input name="email" type="email" required placeholder="${user.email}" /></label>
+          <label><span>Новый пароль</span><input name="password" type="password" minlength="6" required /></label>
+          <button class="button" type="submit">Сбросить пароль</button>
+          <div class="auth-error" id="gs-user-password-err"></div>
+        </form>
+        <form id="gs-user-deactivate">
+          <label><span>Email для отключения</span><input name="email" type="email" required /></label>
+          <button class="button danger" type="submit">Отключить</button>
+          <div class="auth-error" id="gs-user-deactivate-err"></div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  const modal = document.getElementById('gs-user-admin-modal');
+  document.getElementById('gs-user-admin-open').onclick = () => {
+    modal.hidden = false;
+  };
+  document.getElementById('gs-user-admin-close').onclick = () => {
+    modal.hidden = true;
+  };
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.hidden = true;
+  });
+
+  document.getElementById('gs-user-create').onsubmit = async (e) => {
+    e.preventDefault();
+    const err = document.getElementById('gs-user-create-err');
+    err.textContent = '';
+    const payload = Object.fromEntries(new FormData(e.currentTarget).entries());
+    try {
+      await api('/api/auth/register', { method: 'POST', body: JSON.stringify(payload) });
+      err.textContent = 'Создан. Обновите Настройки / список пользователей.';
+      e.currentTarget.reset();
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  };
+
+  document.getElementById('gs-user-password').onsubmit = async (e) => {
+    e.preventDefault();
+    const err = document.getElementById('gs-user-password-err');
+    err.textContent = '';
+    const payload = Object.fromEntries(new FormData(e.currentTarget).entries());
+    try {
+      await api('/api/auth/password', { method: 'POST', body: JSON.stringify(payload) });
+      err.textContent = 'Пароль обновлён.';
+      e.currentTarget.reset();
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  };
+
+  document.getElementById('gs-user-deactivate').onsubmit = async (e) => {
+    e.preventDefault();
+    const err = document.getElementById('gs-user-deactivate-err');
+    err.textContent = '';
+    const payload = Object.fromEntries(new FormData(e.currentTarget).entries());
+    try {
+      await api('/api/auth/deactivate', { method: 'POST', body: JSON.stringify(payload) });
+      err.textContent = 'Пользователь отключён.';
+      e.currentTarget.reset();
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  };
+}
+
+async function bootApp(user, roles) {
   rootEl.innerHTML = '';
-  applyRoleToDom(user);
+  applyRoleToDom(user, roles);
   ReactDOM.createRoot(rootEl).render(
     jsxRuntime.jsx(App, {
-      currentUser: user.displayName,
+      currentUser: user.displayName || user.fullName,
       currentEmail: user.email,
     })
   );
 }
 
 async function start() {
-  const user = await restoreSession(3);
-  if (user) {
-    await bootApp(user);
+  const session = await restoreSession(3);
+  if (session?.user) {
+    await bootApp(session.user, session.roles);
     return;
   }
-  renderAuth('login');
+  let demoHints = false;
+  try {
+    const cfg = await api('/api/auth/config');
+    demoHints = Boolean(cfg.showDemoAccounts);
+  } catch {
+    demoHints = true;
+  }
+  renderAuth(demoHints);
 }
 
 start();

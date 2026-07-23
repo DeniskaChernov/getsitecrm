@@ -4,8 +4,12 @@
  * Значения задаются в Railway Variables / .env — не храните секреты в git.
  */
 module.exports = {
-  requiredInProduction: ['SESSION_SECRET', 'DATABASE_URL'],
+  /** Fail-fast при старте в production */
+  requiredInProduction: ['SESSION_SECRET'],
+  /** Рекомендуются для Railway (без DATABASE_URL — файловое хранилище) */
+  recommendedInProduction: ['DATABASE_URL'],
   optional: [
+    'DATABASE_URL',
     'DATABASE_PRIVATE_URL',
     'POSTGRES_URL',
     'DATABASE_SSL',

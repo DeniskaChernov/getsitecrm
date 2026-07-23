@@ -108,7 +108,22 @@ function iconSvg(name) {
   return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[name] || paths.home}</svg>`;
 }
 
-function isAllowed(role, target) {
+function isAllowed(role, target, rolesFromApi) {
+  if (rolesFromApi?.[role]?.sections) {
+    const sections = rolesFromApi[role].sections;
+    // Map nav targets to API section labels
+    const apiLabel =
+      target === 'Деньги'
+        ? 'Оплаты и расходы'
+        : target === 'Расчёт стоимости'
+          ? 'Unit Economics'
+          : target === 'Отчёты'
+            ? 'Аналитика'
+            : target === 'Готовность системы'
+              ? 'Готовность'
+              : target;
+    return sections.includes(apiLabel) || sections.includes(target);
+  }
   const set = ROLE_ALLOWED[role];
   if (!set) return true;
   return set.has(target);
@@ -164,15 +179,43 @@ function watchActiveSection() {
   obs.observe(document.body, { childList: true, subtree: true, characterData: true });
 }
 
-function filterCreateActions(role) {
-  return CREATE_ACTIONS.filter((a) => isAllowed(role, a.target));
+function filterCreateActions(role, rolesFromApi) {
+  return CREATE_ACTIONS.filter((a) => isAllowed(role, a.target, rolesFromApi));
 }
 
-function buildNav(user) {
+function findActionButton(clickPattern) {
+  const patterns = String(clickPattern || '')
+    .split('|')
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const buttons = [...document.querySelectorAll('main button, .heading-actions button, .toolbar button, .button, [role="main"] button')];
+  for (const pat of patterns) {
+    const re = new RegExp(pat, 'i');
+    const found = buttons.find((b) => re.test((b.textContent || '').replace(/\s+/g, ' ').trim()));
+    if (found) return found;
+  }
+  return null;
+}
+
+function openCreateAction(clickPattern, attempts = 12) {
+  const tryClick = (left) => {
+    const btn = findActionButton(clickPattern);
+    if (btn) {
+      btn.click();
+      return;
+    }
+    if (left <= 0) return;
+    setTimeout(() => tryClick(left - 1), 120);
+  };
+  tryClick(attempts);
+}
+
+function buildNav(user, rolesFromApi) {
   if (document.getElementById('gs-nav')) return;
 
   const role = user.systemRole || 'designer';
-  const initials = (user.displayName || '?')
+  const roleMeta = rolesFromApi?.[role];
+  const initials = (user.displayName || user.fullName || '?')
     .split(/\s+/)
     .map((p) => p[0])
     .join('')
@@ -180,16 +223,17 @@ function buildNav(user) {
     .toUpperCase();
 
   const roleLabel =
-    role === 'founder'
+    roleMeta?.label ||
+    (role === 'founder'
       ? 'Основатель'
       : role === 'sales_manager'
         ? 'Менеджер продаж'
         : role === 'designer'
           ? 'Дизайнер'
-          : user.position || 'Пользователь';
+          : user.position || 'Пользователь');
 
   const groupsHtml = NAV_TREE.map((group) => {
-    const items = group.items.filter((item) => isAllowed(role, item.target));
+    const items = group.items.filter((item) => isAllowed(role, item.target, rolesFromApi));
     if (!items.length) return '';
     return `
       <div class="gs-group" data-group="${group.id}">
@@ -206,8 +250,8 @@ function buildNav(user) {
       </div>`;
   }).join('');
 
-  const moreItems = MORE_ITEMS.filter((item) => isAllowed(role, item.target));
-  const createItems = filterCreateActions(role);
+  const moreItems = MORE_ITEMS.filter((item) => isAllowed(role, item.target, rolesFromApi));
+  const createItems = filterCreateActions(role, rolesFromApi);
 
   const root = document.createElement('aside');
   root.id = 'gs-nav';
@@ -259,7 +303,7 @@ function buildNav(user) {
         </div>
       </div>
       <div class="gs-footer-actions">
-        ${isAllowed(role, 'Настройки') ? `<button type="button" data-target="Настройки">Настройки</button>` : `<button type="button" data-target="История">История</button>`}
+        ${isAllowed(role, 'Настройки', rolesFromApi) ? `<button type="button" data-target="Настройки">Настройки</button>` : `<button type="button" data-target="История">История</button>`}
         <button type="button" id="gs-nav-logout">Выйти</button>
       </div>
     </div>
@@ -299,13 +343,7 @@ function buildNav(user) {
     if (createItem) {
       const target = createItem.dataset.createTarget;
       go(target);
-      // open create action after section paints
-      setTimeout(() => {
-        const re = new RegExp(createItem.dataset.createClick);
-        const actionBtn = [...document.querySelectorAll('main button, .heading-actions button, .toolbar button, .button')]
-          .find((b) => re.test((b.textContent || '').replace(/\s+/g, ' ').trim()));
-        actionBtn?.click();
-      }, 350);
+      openCreateAction(createItem.dataset.createClick);
       return;
     }
 
@@ -330,6 +368,10 @@ function buildNav(user) {
     true
   );
 
+  document.getElementById('gs-nav-overlay')?.addEventListener('click', () => {
+    document.body.classList.remove('gs-nav-open');
+  });
+
   // Wait for React sidebar then sync
   const boot = setInterval(() => {
     if (findOriginalButton('Главная')) {
@@ -341,7 +383,7 @@ function buildNav(user) {
   setTimeout(() => clearInterval(boot), 8000);
 }
 
-export function mountNavShell(user) {
+export function mountNavShell(user, rolesFromApi) {
   // ensure stylesheet
   if (!document.querySelector('link[href="/assets/nav-shell.css"]')) {
     const link = document.createElement('link');
@@ -349,5 +391,5 @@ export function mountNavShell(user) {
     link.href = '/assets/nav-shell.css';
     document.head.appendChild(link);
   }
-  buildNav(user);
+  buildNav(user, rolesFromApi);
 }

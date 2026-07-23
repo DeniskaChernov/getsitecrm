@@ -253,13 +253,71 @@ body.gs-nav-ready .workspace {
     transform: translateX(-105%);
     transition: transform 0.2s ease;
     width: min(280px, 86vw);
+    z-index: 40;
   }
   body.gs-nav-open #gs-nav { transform: translateX(0); }
-  body.gs-nav-open::after {
-    content: '';
+  #gs-nav-overlay {
+    display: none;
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.45);
     z-index: 35;
   }
+  body.gs-nav-open #gs-nav-overlay {
+    display: block;
+  }
 }
+
+/* Founder user-admin overlay */
+.gs-user-admin-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 50;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+}
+.gs-user-admin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0,0,0,.4);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.gs-user-admin-modal[hidden] { display: none !important; }
+.gs-user-admin-card {
+  width: min(420px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: #fff;
+  color: #111;
+  border-radius: 12px;
+  padding: 16px;
+}
+.gs-user-admin-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.gs-user-admin-card .hint { font-size: 13px; opacity: .75; margin-bottom: 12px; }
+.gs-user-admin-card label { display: grid; gap: 4px; margin-bottom: 8px; font-size: 13px; }
+.gs-user-admin-card input, .gs-user-admin-card select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+}
+.gs-user-admin-card hr { margin: 14px 0; border: 0; border-top: 1px solid #eee; }
+.gs-user-admin-card .button.danger { background: #b42318; color: #fff; border: 0; }
+.gs-user-admin-card .auth-error { min-height: 1.2em; color: #b42318; font-size: 13px; margin-top: 6px; }
+body.role-sales_manager .gs-user-admin-fab,
+body.role-designer .gs-user-admin-fab { display: none; }
