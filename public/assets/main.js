@@ -1,41 +1,10 @@
 import { r as jsxFactory, t as reactDomFactory } from './framework-CXnKph_e.js';
 import App from './os-client-DeMZwioN.js';
+import { mountNavShell } from './nav-shell.js';
 
 const jsxRuntime = jsxFactory();
 const ReactDOM = reactDomFactory();
 const rootEl = document.getElementById('root');
-
-const ROLE_NAV = {
-  founder: null, // all
-  sales_manager: [
-    'Главная',
-    'Заявки',
-    'Клиенты',
-    'Сметы',
-    'Проекты',
-    'Деньги',
-    'Прайс',
-    'Скрипты продаж',
-    'История',
-  ],
-  designer: ['Главная', 'Проекты', 'Команда и сроки', 'История'],
-};
-
-const ROLE_BLOCKED_INTERNAL = {
-  sales_manager: ['Unit Economics', 'Готовность', 'Аналитика', 'Настройки', 'Команда и сроки'],
-  designer: [
-    'Заявки',
-    'Клиенты',
-    'Сметы',
-    'Оплаты и расходы',
-    'Unit Economics',
-    'Прайс',
-    'Скрипты продаж',
-    'Готовность',
-    'Аналитика',
-    'Настройки',
-  ],
-};
 
 async function api(path, options = {}) {
   const res = await fetch(path, {
@@ -49,6 +18,9 @@ async function api(path, options = {}) {
 }
 
 function renderAuth(mode = 'login') {
+  document.body.classList.remove('gs-nav-ready', 'gs-nav-open');
+  document.getElementById('gs-nav')?.remove();
+
   rootEl.innerHTML = `
     <div class="auth-shell">
       <form class="auth-card" id="auth-form">
@@ -124,85 +96,7 @@ function renderAuth(mode = 'login') {
 function applyRoleToDom(user) {
   document.body.classList.remove('role-founder', 'role-sales_manager', 'role-designer');
   document.body.classList.add(`role-${user.systemRole}`);
-
-  const allowed = ROLE_NAV[user.systemRole];
-  const hideNav = () => {
-    document.querySelectorAll('nav button.nav-item, .nav-list button.nav-item').forEach((btn) => {
-      const label = (btn.textContent || '').replace(/\d+/g, '').trim();
-      // Map display labels
-      const normalized = label
-        .replace(/^Деньги.*/, 'Деньги')
-        .replace(/^Расчёт стоимости.*/, 'Расчёт стоимости')
-        .replace(/^Готовность.*/, 'Готовность системы')
-        .replace(/^Отчёты.*/, 'Отчёты')
-        .replace(/^Команда и сроки.*/, 'Команда и сроки')
-        .replace(/^Скрипты продаж.*/, 'Скрипты продаж')
-        .replace(/^Заявки.*/, 'Заявки')
-        .replace(/^Клиенты.*/, 'Клиенты')
-        .replace(/^Сметы.*/, 'Сметы')
-        .replace(/^Проекты.*/, 'Проекты')
-        .replace(/^Прайс.*/, 'Прайс')
-        .replace(/^История.*/, 'История')
-        .replace(/^Настройки.*/, 'Настройки')
-        .replace(/^Главная.*/, 'Главная');
-
-      if (!allowed) {
-        btn.style.display = '';
-        return;
-      }
-      const ok = allowed.some((a) => normalized.startsWith(a) || label.startsWith(a));
-      btn.style.display = ok ? '' : 'none';
-    });
-  };
-
-  hideNav();
-  const obs = new MutationObserver(() => hideNav());
-  obs.observe(document.body, { childList: true, subtree: true });
-
-  // Block opening forbidden sections via sessionStorage / click interception
-  document.addEventListener(
-    'click',
-    (e) => {
-      const btn = e.target.closest('button.nav-item');
-      if (!btn || !allowed) return;
-      const text = (btn.textContent || '').trim();
-      const blockedDisplay = {
-        sales_manager: ['Расчёт стоимости', 'Готовность', 'Отчёты', 'Настройки', 'Команда и сроки'],
-        designer: [
-          'Заявки',
-          'Клиенты',
-          'Сметы',
-          'Деньги',
-          'Расчёт стоимости',
-          'Прайс',
-          'Скрипты',
-          'Готовность',
-          'Отчёты',
-          'Настройки',
-        ],
-      }[user.systemRole];
-      if (blockedDisplay?.some((b) => text.startsWith(b))) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    },
-    true
-  );
-
-  // Logout on user card double-click context — add floating logout
-  if (!document.getElementById('gs-logout')) {
-    const logout = document.createElement('button');
-    logout.id = 'gs-logout';
-    logout.className = 'button secondary';
-    logout.textContent = 'Выйти';
-    logout.style.cssText =
-      'position:fixed;right:16px;bottom:16px;z-index:9999;opacity:.85';
-    logout.onclick = async () => {
-      await api('/api/auth/logout', { method: 'POST', body: '{}' });
-      location.reload();
-    };
-    document.body.appendChild(logout);
-  }
+  mountNavShell(user);
 }
 
 async function bootApp(user) {

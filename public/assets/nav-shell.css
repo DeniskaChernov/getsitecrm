@@ -1,0 +1,265 @@
+/* GetSite OS — компактная навигация по сценариям */
+:root {
+  --gs-nav-w: 248px;
+  --gs-nav-bg: #101613;
+  --gs-nav-line: #243029;
+  --gs-nav-text: #dce6df;
+  --gs-nav-muted: #8b9a91;
+  --gs-nav-accent: #b7f05a;
+  --gs-nav-hover: #1a221e;
+  --gs-nav-active: #222c26;
+}
+
+body.gs-nav-ready .os-shell > .sidebar,
+body.gs-nav-ready aside.sidebar {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+body.gs-nav-ready .os-shell {
+  display: block !important;
+  padding-left: var(--gs-nav-w);
+  min-height: 100vh;
+}
+
+body.gs-nav-ready .os-shell > .workspace,
+body.gs-nav-ready .workspace {
+  width: 100%;
+  margin-left: 0 !important;
+}
+
+#gs-nav {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--gs-nav-w);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--gs-nav-bg);
+  border-right: 1px solid var(--gs-nav-line);
+  color: var(--gs-nav-text);
+  font-family: var(--font-geist-sans, Geist, system-ui, sans-serif);
+}
+
+#gs-nav .gs-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 18px 16px 10px;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+#gs-nav .gs-brand .g { color: var(--gs-nav-accent); }
+#gs-nav .gs-brand .star { color: var(--gs-nav-accent); margin: 0 1px; }
+#gs-nav .gs-brand small {
+  margin-left: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gs-nav-muted);
+}
+
+#gs-nav .gs-create {
+  margin: 4px 12px 12px;
+  display: flex;
+  gap: 8px;
+}
+
+#gs-nav .gs-create > button.primary {
+  flex: 1;
+  justify-content: center;
+}
+
+#gs-nav .gs-create-menu {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 96px;
+  background: #161d19;
+  border: 1px solid var(--gs-nav-line);
+  border-radius: 14px;
+  padding: 6px;
+  display: none;
+  z-index: 50;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+#gs-nav .gs-create-menu.open { display: grid; gap: 2px; }
+
+#gs-nav .gs-create-menu button {
+  border: 0;
+  background: transparent;
+  color: var(--gs-nav-text);
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+#gs-nav .gs-create-menu button:hover {
+  background: var(--gs-nav-hover);
+}
+
+#gs-nav .gs-create-menu button small {
+  display: block;
+  color: var(--gs-nav-muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+#gs-nav .gs-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 0 10px 12px;
+}
+
+#gs-nav .gs-group {
+  margin-bottom: 14px;
+}
+
+#gs-nav .gs-group-title {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gs-nav-muted);
+  padding: 4px 8px 6px;
+}
+
+#gs-nav .gs-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--gs-nav-text);
+  padding: 9px 10px;
+  border-radius: 11px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+}
+
+#gs-nav .gs-item:hover { background: var(--gs-nav-hover); }
+#gs-nav .gs-item.active {
+  background: var(--gs-nav-active);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gs-nav-accent) 28%, transparent);
+}
+
+#gs-nav .gs-item .ico {
+  width: 18px;
+  height: 18px;
+  opacity: 0.85;
+  flex: 0 0 auto;
+}
+
+#gs-nav .gs-item .badge {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--gs-nav-muted);
+  background: #0c100e;
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+#gs-nav .gs-footer {
+  border-top: 1px solid var(--gs-nav-line);
+  padding: 10px 12px 14px;
+  display: grid;
+  gap: 8px;
+}
+
+#gs-nav .gs-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+}
+
+#gs-nav .gs-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--gs-nav-accent) 22%, #1a221e);
+  color: var(--gs-nav-accent);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#gs-nav .gs-user strong {
+  display: block;
+  font-size: 13px;
+}
+
+#gs-nav .gs-user span {
+  display: block;
+  font-size: 11px;
+  color: var(--gs-nav-muted);
+}
+
+#gs-nav .gs-footer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+#gs-nav .gs-footer-actions button {
+  border: 1px solid var(--gs-nav-line);
+  background: #141b17;
+  color: var(--gs-nav-text);
+  border-radius: 10px;
+  padding: 8px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#gs-nav .gs-footer-actions button:hover {
+  border-color: color-mix(in oklab, var(--gs-nav-accent) 35%, var(--gs-nav-line));
+}
+
+#gs-nav .gs-more-panel {
+  display: none;
+  margin-top: 6px;
+  padding: 4px;
+  border: 1px solid var(--gs-nav-line);
+  border-radius: 12px;
+  background: #141b17;
+}
+
+#gs-nav .gs-more-panel.open { display: grid; gap: 2px; }
+
+#gs-logout {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  :root { --gs-nav-w: 0px; }
+  #gs-nav {
+    transform: translateX(-105%);
+    transition: transform 0.2s ease;
+    width: min(280px, 86vw);
+  }
+  body.gs-nav-open #gs-nav { transform: translateX(0); }
+  body.gs-nav-open::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 35;
+  }
+}
