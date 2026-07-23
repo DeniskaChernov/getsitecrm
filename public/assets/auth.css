@@ -1,0 +1,149 @@
+:root {
+  --auth-bg: #0f1412;
+  --auth-panel: #171d1a;
+  --auth-line: #2a342f;
+  --auth-text: #e8eee9;
+  --auth-muted: #9aa79f;
+  --auth-accent: #b7f05a;
+  --auth-danger: #ff7b72;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(183, 240, 90, 0.12), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(80, 140, 120, 0.18), transparent 50%),
+    var(--auth-bg);
+  color: var(--auth-text);
+}
+
+.auth-card {
+  width: min(440px, 100%);
+  background: color-mix(in oklab, var(--auth-panel) 92%, black);
+  border: 1px solid var(--auth-line);
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.auth-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  margin-bottom: 8px;
+}
+
+.auth-brand .brand-get { color: var(--auth-accent); }
+.auth-brand .brand-star { color: var(--auth-accent); margin: 0 2px; }
+.auth-brand small {
+  margin-left: 6px;
+  font-size: 14px;
+  color: var(--auth-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-card h1 {
+  font-size: 22px;
+  margin: 12px 0 6px;
+  letter-spacing: -0.03em;
+}
+
+.auth-card p.lead {
+  color: var(--auth-muted);
+  margin: 0 0 20px;
+  line-height: 1.45;
+  font-size: 14px;
+}
+
+.auth-card label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--auth-muted);
+}
+
+.auth-card input,
+.auth-card select {
+  width: 100%;
+  border: 1px solid var(--auth-line);
+  background: #0d1210;
+  color: var(--auth-text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.auth-card input:focus,
+.auth-card select:focus {
+  outline: 2px solid color-mix(in oklab, var(--auth-accent) 55%, transparent);
+  border-color: color-mix(in oklab, var(--auth-accent) 40%, var(--auth-line));
+}
+
+.auth-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.auth-actions .button {
+  flex: 1;
+}
+
+.auth-error {
+  color: var(--auth-danger);
+  font-size: 13px;
+  min-height: 18px;
+  margin: 4px 0 10px;
+}
+
+.auth-switch {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--auth-muted);
+}
+
+.auth-switch button {
+  background: none;
+  border: 0;
+  color: var(--auth-accent);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.auth-demos {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--auth-line);
+  font-size: 12px;
+  color: var(--auth-muted);
+  line-height: 1.55;
+}
+
+.auth-demos strong { color: var(--auth-text); }
+
+body.role-sales_manager button.nav-item[data-section="Unit Economics"],
+body.role-sales_manager button.nav-item[data-section="Готовность"],
+body.role-sales_manager button.nav-item[data-section="Аналитика"],
+body.role-sales_manager button.nav-item[data-section="Настройки"],
+body.role-sales_manager button.nav-item[data-section="Команда и сроки"],
+body.role-designer button.nav-item[data-section="Заявки"],
+body.role-designer button.nav-item[data-section="Клиенты"],
+body.role-designer button.nav-item[data-section="Сметы"],
+body.role-designer button.nav-item[data-section="Оплаты и расходы"],
+body.role-designer button.nav-item[data-section="Unit Economics"],
+body.role-designer button.nav-item[data-section="Прайс"],
+body.role-designer button.nav-item[data-section="Скрипты продаж"],
+body.role-designer button.nav-item[data-section="Готовность"],
+body.role-designer button.nav-item[data-section="Аналитика"],
+body.role-designer button.nav-item[data-section="Настройки"] {
+  display: none !important;
+}
