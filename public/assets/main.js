@@ -50,8 +50,8 @@ function renderAuth(demoHints = false) {
       <section class="auth-hero" aria-label="getsite">
         <div class="auth-hero-inner">
           <img class="auth-logo" src="/assets/logo-getsite.png" width="220" height="220" alt="getsite*" />
-          <h1>Операционная система <span>продаж и проектов</span></h1>
-          <p>Один контур для заявок, смет, производства и денег getsite.uz</p>
+          <h1>CRM, который <span>ведёт</span> сделки до сдачи</h1>
+          <p>Заявки, сметы, проекты и деньги — в одном контуре getsite.uz</p>
         </div>
       </section>
       <div class="auth-panel-wrap">

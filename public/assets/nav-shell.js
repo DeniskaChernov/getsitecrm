@@ -24,50 +24,50 @@ const NAV_TREE = [
   {
     id: 'home',
     title: null,
-    items: [{ id: 'home', label: 'Главная', target: 'Главная', icon: 'home' }],
+    items: [{ id: 'home', label: 'Сегодня', target: 'Главная', icon: 'home' }],
   },
   {
     id: 'sales',
-    title: 'Продажи',
+    title: '1. Продажи',
     items: [
-      { id: 'leads', label: 'Заявки', target: 'Заявки', icon: 'inbox', hint: 'Воронка' },
+      { id: 'leads', label: 'Заявки', target: 'Заявки', icon: 'inbox', hint: 'Входящие' },
       { id: 'clients', label: 'Клиенты', target: 'Клиенты', icon: 'users' },
-      { id: 'estimates', label: 'Сметы', target: 'Сметы', icon: 'file', hint: 'КП и состав' },
+      { id: 'estimates', label: 'Сметы / КП', target: 'Сметы', icon: 'file', hint: 'Цены клиенту' },
       { id: 'scripts', label: 'Скрипты', target: 'Скрипты продаж', icon: 'chat' },
     ],
   },
   {
     id: 'work',
-    title: 'Производство',
+    title: '2. Производство',
     items: [
       { id: 'projects', label: 'Проекты', target: 'Проекты', icon: 'layers' },
-      { id: 'team', label: 'Сроки и команда', target: 'Команда и сроки', icon: 'calendar' },
+      { id: 'team', label: 'Сроки', target: 'Команда и сроки', icon: 'calendar' },
     ],
   },
   {
     id: 'money',
-    title: 'Деньги',
+    title: '3. Деньги',
     items: [
-      { id: 'payments', label: 'Оплаты и расходы', target: 'Деньги', icon: 'wallet' },
-      { id: 'calc', label: 'Калькулятор цены', target: 'Расчёт стоимости', icon: 'calc' },
+      { id: 'payments', label: 'Оплаты', target: 'Деньги', icon: 'wallet' },
+      { id: 'calc', label: 'Калькулятор', target: 'Расчёт стоимости', icon: 'calc' },
       { id: 'price', label: 'Прайс', target: 'Прайс', icon: 'tag' },
     ],
   },
 ];
 
 const MORE_ITEMS = [
-  { id: 'history', label: 'История изменений', target: 'История', icon: 'clock' },
+  { id: 'history', label: 'История', target: 'История', icon: 'clock' },
   { id: 'reports', label: 'Отчёты', target: 'Отчёты', icon: 'chart' },
   { id: 'settings', label: 'Настройки', target: 'Настройки', icon: 'gear' },
-  { id: 'ready', label: 'Готовность системы', target: 'Готовность системы', icon: 'check' },
+  { id: 'ready', label: 'Готовность', target: 'Готовность системы', icon: 'check' },
 ];
 
 const CREATE_ACTIONS = [
-  { label: 'Новая заявка', desc: 'Лид в воронку', target: 'Заявки', click: 'Новая заявка|Создать заявку|Добавить заявку' },
-  { label: 'Клиент', desc: 'Компания и контакт', target: 'Клиенты', click: 'Добавить клиента' },
-  { label: 'Смета', desc: 'Состав и цена', target: 'Сметы', click: 'Новая смета' },
-  { label: 'Проект', desc: 'В производство', target: 'Проекты', click: 'Создать проект' },
-  { label: 'Оплата', desc: 'Доход по проекту', target: 'Деньги', click: 'Зафиксировать оплату|Добавить оплату' },
+  { label: 'Заявка', desc: 'Новый лид в воронку', target: 'Заявки', click: 'Новая заявка|Создать заявку|Добавить заявку' },
+  { label: 'Клиент', desc: 'Карточка компании', target: 'Клиенты', click: 'Добавить клиента' },
+  { label: 'Смета / КП', desc: 'Состав и цена клиенту', target: 'Сметы', click: 'Новая смета' },
+  { label: 'Проект', desc: 'В работу после сделки', target: 'Проекты', click: 'Создать проект' },
+  { label: 'Оплата', desc: 'Деньги по проекту', target: 'Деньги', click: 'Зафиксировать оплату|Добавить оплату' },
 ];
 
 const ROLE_ALLOWED = {
@@ -263,6 +263,7 @@ function buildNav(user, rolesFromApi) {
         <small>OS</small>
       </span>
     </button>
+    <p class="gs-flow-hint">Заявка → Смета → Проект → Оплата</p>
     <div class="gs-create" style="position:relative">
       <button type="button" class="button primary" id="gs-create-btn">${iconSvg('plus')} Создать</button>
       <div class="gs-create-menu" id="gs-create-menu" role="menu">
