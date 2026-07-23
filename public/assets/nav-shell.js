@@ -49,8 +49,8 @@ const NAV_TREE = [
     title: '3. Деньги',
     items: [
       { id: 'payments', label: 'Оплаты', target: 'Деньги', icon: 'wallet' },
-      { id: 'calc', label: 'Калькулятор', target: 'Расчёт стоимости', icon: 'calc' },
-      { id: 'price', label: 'Прайс', target: 'Прайс', icon: 'tag' },
+      { id: 'calc', label: 'Себестоимость', target: 'Расчёт стоимости', icon: 'calc' },
+      { id: 'price', label: 'Прайс (цены)', target: 'Прайс', icon: 'tag' },
     ],
   },
 ];

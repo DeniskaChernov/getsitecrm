@@ -420,3 +420,26 @@ body.gs-nav-ready .workspace {
 .gs-user-admin-card .auth-error { min-height: 1.2em; color: #e23d35; font-size: 13px; margin-top: 6px; }
 body.role-sales_manager .gs-user-admin-fab,
 body.role-designer .gs-user-admin-fab { display: none; }
+
+/* Sales in Прайс: hide cost/hours block — only commercial fields */
+body.role-sales_manager .form-modal .form-section-title:nth-of-type(3),
+body.role-sales_manager .form-modal label:has(input[name='founderHours']),
+body.role-sales_manager .form-modal label:has(input[name='contractorHours']) {
+  display: none !important;
+}
+
+.service-hours {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+.service-hours strong {
+  font-size: 13px;
+}
+.service-hours small {
+  color: var(--gs-muted, #6b6b64);
+  font-size: 11px;
+}
+.price-below-floor {
+  color: #b42318 !important;
+}
