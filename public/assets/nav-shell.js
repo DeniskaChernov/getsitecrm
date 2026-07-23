@@ -256,16 +256,13 @@ function buildNav(user, rolesFromApi) {
   const root = document.createElement('aside');
   root.id = 'gs-nav';
   root.innerHTML = `
-    <button type="button" class="gs-brand" data-target="Главная" aria-label="На главную">
-      <img class="gs-brand-mark" src="/assets/logo-getsite.png" width="40" height="40" alt="" />
-      <span class="gs-brand-text">
-        <strong>getsite<em>*</em></strong>
-        <small>OS</small>
-      </span>
+    <button type="button" class="gs-brand" data-target="Главная" aria-label="getsite OS — на главную">
+      <img class="gs-brand-mark" src="/assets/logo-getsite.png" alt="getsite*" />
     </button>
-    <p class="gs-flow-hint">Заявка → Смета → Проект → Оплата</p>
     <div class="gs-create" style="position:relative">
-      <button type="button" class="button primary" id="gs-create-btn">${iconSvg('plus')} Создать</button>
+      <button type="button" class="button primary" id="gs-create-btn" aria-label="Создать" title="Создать">
+        ${iconSvg('plus')}
+      </button>
       <div class="gs-create-menu" id="gs-create-menu" role="menu">
         ${createItems
           .map(

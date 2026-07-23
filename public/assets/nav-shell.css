@@ -47,10 +47,8 @@ body.gs-nav-ready .workspace {
 }
 
 #gs-nav .gs-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 16px 12px;
+  display: block;
+  padding: 14px 14px 10px;
   cursor: pointer;
   border: 0;
   background: transparent;
@@ -60,82 +58,47 @@ body.gs-nav-ready .workspace {
 }
 
 #gs-nav .gs-brand-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  max-height: 120px;
   object-fit: cover;
-  flex: 0 0 auto;
+  border-radius: 18px;
   box-shadow: 0 0 28px rgba(205, 251, 5, 0.22);
   transition: transform 0.2s ease, box-shadow 0.2s;
 }
 
 #gs-nav .gs-brand:hover .gs-brand-mark {
-  transform: translateY(-1px) scale(1.02);
+  transform: translateY(-1px) scale(1.01);
   box-shadow: 0 0 36px rgba(205, 251, 5, 0.35);
 }
 
-#gs-nav .gs-brand-text {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-#gs-nav .gs-brand-text strong {
-  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.06em;
-  line-height: 1;
-}
-
-#gs-nav .gs-brand-text strong em {
-  font-style: normal;
-  background: var(--gs-nav-accent);
-  color: #050508;
-  padding: 0 4px;
-  margin-left: 1px;
-  border-radius: 6px;
-}
-
-#gs-nav .gs-brand-text small {
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gs-nav-muted);
-  font-weight: 700;
-}
-
-#gs-nav .gs-flow-hint {
-  margin: 0 14px 12px;
-  padding: 10px 12px;
-  font-size: 11px;
-  font-weight: 650;
-  color: var(--gs-nav-muted);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  backdrop-filter: blur(10px);
-  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
-  letter-spacing: -0.02em;
-}
-
 #gs-nav .gs-create {
-  margin: 2px 14px 16px;
+  margin: 4px 14px 16px;
   display: flex;
-  gap: 8px;
   position: relative;
 }
 
-#gs-nav .gs-create > button.primary {
+#gs-nav .gs-create > button.primary,
+#gs-nav #gs-create-btn {
   flex: 1;
+  width: 100%;
+  min-height: 52px !important;
+  height: 52px;
+  padding: 0 !important;
   justify-content: center;
-  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: 999px;
-  font-weight: 800;
-  font-size: 13px;
+  display: inline-flex !important;
+  gap: 0;
+  border-radius: 16px !important;
+  font-size: 0 !important; /* hide any leftover text nodes */
+}
+
+#gs-nav #gs-create-btn .ico {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.4;
 }
 
 #gs-nav .gs-create-menu {

@@ -155,6 +155,12 @@ button.button.primary,
     0 0 28px var(--gs-lime-glow) !important;
 }
 
+#gs-nav #gs-create-btn.button.primary {
+  border-radius: 16px !important;
+  min-height: 52px !important;
+  padding: 0 !important;
+}
+
 .button.primary:hover,
 button.button.primary:hover,
 #gs-nav .gs-create > button.primary:hover {
