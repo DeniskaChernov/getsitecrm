@@ -1,9 +1,9 @@
 :root {
-  --auth-ink: #0a0a0a;
-  --auth-paper: #f7f7f4;
+  --auth-ink: #f3f3ef;
+  --auth-paper: #09090b;
   --auth-lime: #cdfb05;
-  --auth-muted: #5f5f58;
-  --auth-danger: #e23d35;
+  --auth-muted: #9a9a93;
+  --auth-danger: #ff625c;
 }
 
 .auth-shell {
@@ -22,8 +22,8 @@
   padding: clamp(28px, 5vw, 56px);
   overflow: hidden;
   background: var(--auth-lime);
-  color: var(--auth-ink);
-  border-right: 1px solid var(--auth-ink);
+  color: #050505;
+  border-right: 1px solid #1a1a1e;
 }
 
 .auth-hero::before {
@@ -32,12 +32,8 @@
   inset: auto -10% -20% 35%;
   height: 70%;
   background:
-    radial-gradient(circle at 30% 40%, rgba(10, 10, 10, 0.08), transparent 55%),
-    repeating-linear-gradient(
-      -12deg,
-      transparent 0 14px,
-      rgba(10, 10, 10, 0.05) 14px 15px
-    );
+    radial-gradient(circle at 30% 40%, rgba(0, 0, 0, 0.1), transparent 55%),
+    repeating-linear-gradient(-12deg, transparent 0 14px, rgba(0, 0, 0, 0.06) 14px 15px);
   pointer-events: none;
 }
 
@@ -52,8 +48,8 @@
   width: min(168px, 42vw);
   height: auto;
   border-radius: 22px;
-  border: 2px solid var(--auth-ink);
-  box-shadow: 6px 6px 0 var(--auth-ink);
+  border: 2px solid #050505;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
   margin: 0 0 36px;
   display: block;
   background: var(--auth-lime);
@@ -71,7 +67,7 @@
 
 .auth-hero h1 span {
   display: inline;
-  background: var(--auth-ink);
+  background: #050505;
   color: var(--auth-lime);
   padding: 0 0.12em 0.02em;
   box-decoration-break: clone;
@@ -83,14 +79,14 @@
   font-size: 16px;
   line-height: 1.45;
   font-weight: 550;
-  color: rgba(10, 10, 10, 0.72);
+  color: rgba(5, 5, 5, 0.72);
 }
 
 .auth-panel-wrap {
   display: grid;
   place-items: center;
   padding: 40px 28px;
-  background: var(--auth-paper);
+  background: #0c0c10;
   animation: auth-in 0.65s 0.06s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
@@ -107,7 +103,7 @@
   text-transform: uppercase;
   font-weight: 800;
   margin-bottom: 14px;
-  color: var(--auth-ink);
+  color: var(--auth-lime);
 }
 
 .auth-card .auth-kicker::before {
@@ -115,7 +111,7 @@
   width: 8px;
   height: 8px;
   background: var(--auth-lime);
-  border: 1px solid var(--auth-ink);
+  border: 1px solid #050505;
 }
 
 .auth-card h2 {
@@ -125,6 +121,7 @@
   letter-spacing: -0.05em;
   font-weight: 800;
   line-height: 1;
+  color: var(--auth-ink);
 }
 
 .auth-card p.lead {
@@ -141,28 +138,26 @@
   margin-bottom: 14px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.02em;
   color: var(--auth-muted);
 }
 
 .auth-card input,
 .auth-card select {
   width: 100%;
-  border: 1.5px solid #cfcfc8;
-  background: #fff;
+  border: 1px solid #2a2a30;
+  background: #09090b;
   color: var(--auth-ink);
   border-radius: 10px;
   padding: 13px 14px;
   font: inherit;
   font-weight: 550;
-  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .auth-card input:focus,
 .auth-card select:focus {
   outline: none;
-  border-color: var(--auth-ink);
-  box-shadow: 0 0 0 3px rgba(205, 251, 5, 0.55);
+  border-color: color-mix(in oklab, var(--auth-lime) 55%, #2a2a30);
+  box-shadow: 0 0 0 3px rgba(205, 251, 5, 0.2);
 }
 
 .auth-actions {
@@ -177,21 +172,19 @@
   padding: 13px 16px;
   font-weight: 800;
   cursor: pointer;
-  border: 1.5px solid var(--auth-ink);
+  border: 1px solid transparent;
   font-size: 14px;
-  letter-spacing: -0.02em;
 }
 
 .auth-actions .button.primary {
   background: var(--auth-lime);
-  color: var(--auth-ink);
-  box-shadow: 3px 3px 0 var(--auth-ink);
-  transition: transform 0.15s, box-shadow 0.15s;
+  color: #050505;
+  border-color: var(--auth-lime);
+  box-shadow: 0 8px 28px rgba(205, 251, 5, 0.22);
 }
 
 .auth-actions .button.primary:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--auth-ink);
+  filter: brightness(1.05);
 }
 
 .auth-error {
@@ -205,7 +198,7 @@
 .auth-demos {
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #e2e2dc;
+  border-top: 1px solid #2a2a30;
   font-size: 12px;
   color: var(--auth-muted);
   line-height: 1.55;
@@ -219,13 +212,11 @@
 }
 
 @media (max-width: 900px) {
-  .auth-shell {
-    grid-template-columns: 1fr;
-  }
+  .auth-shell { grid-template-columns: 1fr; }
   .auth-hero {
     min-height: 34vh;
     border-right: 0;
-    border-bottom: 1px solid var(--auth-ink);
+    border-bottom: 1px solid #1a1a1e;
     align-content: center;
     padding: 36px 24px;
   }
@@ -233,16 +224,9 @@
     width: 96px;
     margin-bottom: 20px;
     border-radius: 16px;
-    box-shadow: 4px 4px 0 var(--auth-ink);
   }
-  .auth-hero h1 {
-    font-size: 36px;
-    max-width: none;
-  }
-  .auth-panel-wrap {
-    align-items: start;
-    padding-top: 28px;
-  }
+  .auth-hero h1 { font-size: 36px; max-width: none; }
+  .auth-panel-wrap { align-items: start; padding-top: 28px; }
 }
 
 body.role-sales_manager button.nav-item[data-section="Unit Economics"],
