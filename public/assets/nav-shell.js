@@ -256,23 +256,26 @@ function buildNav(user, rolesFromApi) {
   const root = document.createElement('aside');
   root.id = 'gs-nav';
   root.innerHTML = `
-    <button type="button" class="gs-brand" data-target="Главная" aria-label="getsite OS — на главную">
-      <img class="gs-brand-mark" src="/assets/logo-getsite.png" alt="getsite*" />
-    </button>
-    <div class="gs-create" style="position:relative">
-      <button type="button" class="button primary" id="gs-create-btn" aria-label="Создать" title="Создать" aria-expanded="false" aria-haspopup="menu">
-        <span class="gs-plus" aria-hidden="true"></span>
+    <div class="gs-top">
+      <button type="button" class="gs-brand" data-target="Главная" aria-label="getsite OS — на главную">
+        <img class="gs-brand-mark" src="/assets/logo-getsite.png" alt="getsite*" />
       </button>
-      <div class="gs-create-menu" id="gs-create-menu" role="menu">
-        ${createItems
-          .map(
-            (a) => `
-          <button type="button" data-create-target="${a.target}" data-create-click="${a.click}">
-            ${a.label}<small>${a.desc}</small>
-          </button>`
-          )
-          .join('')}
+      <div class="gs-create" style="position:relative">
+        <button type="button" class="button primary" id="gs-create-btn" aria-label="Создать" title="Создать" aria-expanded="false" aria-haspopup="menu">
+          <span class="gs-plus" aria-hidden="true"></span>
+        </button>
+        <div class="gs-create-menu" id="gs-create-menu" role="menu">
+          ${createItems
+            .map(
+              (a) => `
+            <button type="button" data-create-target="${a.target}" data-create-click="${a.click}">
+              ${a.label}<small>${a.desc}</small>
+            </button>`
+            )
+            .join('')}
+        </div>
       </div>
+      <button type="button" class="gs-collapse" id="gs-nav-collapse" title="Скрыть меню" aria-label="Скрыть левое меню">‹</button>
     </div>
     <div class="gs-scroll">
       ${groupsHtml}
@@ -314,14 +317,18 @@ function buildNav(user, rolesFromApi) {
   document.body.appendChild(root);
   document.body.classList.add('gs-nav-ready');
 
-  const go = (target) => {
-    document.getElementById('gs-create-menu')?.classList.remove('open');
-    document.querySelector('#gs-nav .gs-create')?.classList.remove('open');
-    const createBtn = document.getElementById('gs-create-btn');
-    if (createBtn) createBtn.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('gs-nav-open');
-    if (goToSection(target)) syncActive(target);
-  };
+  // Floating reopen control
+  let reopen = document.getElementById('gs-nav-reopen');
+  if (!reopen) {
+    reopen = document.createElement('button');
+    reopen.id = 'gs-nav-reopen';
+    reopen.className = 'gs-nav-reopen';
+    reopen.type = 'button';
+    reopen.title = 'Показать меню';
+    reopen.setAttribute('aria-label', 'Показать левое меню');
+    reopen.innerHTML = '<img src="/assets/logo-getsite.png" alt="" />';
+    document.body.appendChild(reopen);
+  }
 
   const setCreateOpen = (open) => {
     const wrap = document.querySelector('#gs-nav .gs-create');
@@ -330,6 +337,34 @@ function buildNav(user, rolesFromApi) {
     wrap?.classList.toggle('open', open);
     menu?.classList.toggle('open', open);
     btn?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+
+  const setNavCollapsed = (collapsed) => {
+    document.body.classList.toggle('gs-nav-collapsed', collapsed);
+    try {
+      localStorage.setItem('gs-nav-collapsed', collapsed ? '1' : '0');
+    } catch {}
+  };
+
+  if (localStorage.getItem('gs-nav-collapsed') === '1') {
+    setNavCollapsed(true);
+  }
+
+  document.getElementById('gs-nav-collapse')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCreateOpen(false);
+    setNavCollapsed(true);
+  });
+
+  reopen.addEventListener('click', () => setNavCollapsed(false));
+
+  const go = (target) => {
+    setCreateOpen(false);
+    document.body.classList.remove('gs-nav-open');
+    document.body.classList.add('gs-page-animating');
+    window.setTimeout(() => document.body.classList.remove('gs-page-animating'), 400);
+    if (goToSection(target)) syncActive(target);
   };
 
   root.addEventListener('click', async (e) => {

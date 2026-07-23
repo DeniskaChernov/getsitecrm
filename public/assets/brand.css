@@ -172,8 +172,8 @@ button.button.primary,
 }
 
 #gs-nav #gs-create-btn.button.primary {
-  border-radius: 16px !important;
-  min-height: 52px !important;
+  border-radius: 12px !important;
+  min-height: 40px !important;
   padding: 0 !important;
 }
 
@@ -858,7 +858,7 @@ tbody tr:hover {
 
 /* Create FAB open state from brand layer */
 #gs-nav #gs-create-btn.button.primary {
-  border-radius: 18px !important;
-  min-height: 56px !important;
+  border-radius: 12px !important;
+  min-height: 40px !important;
   padding: 0 !important;
 }
