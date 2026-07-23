@@ -1,13 +1,13 @@
-/* getsite* nav — dark rail + acid accents */
+/* getsite* nav — glass rail + neon accent (dosed) */
 :root {
-  --gs-nav-w: 268px;
-  --gs-nav-bg: #0a0a0d;
-  --gs-nav-line: #222228;
-  --gs-nav-text: #f3f3ef;
-  --gs-nav-muted: #8f8f88;
+  --gs-nav-w: 276px;
+  --gs-nav-bg: rgba(8, 8, 14, 0.62);
+  --gs-nav-line: rgba(255, 255, 255, 0.1);
+  --gs-nav-text: #f4f4f1;
+  --gs-nav-muted: #9b9b96;
   --gs-nav-accent: #cdfb05;
-  --gs-nav-hover: #141418;
-  --gs-nav-active: #17171c;
+  --gs-nav-hover: rgba(255, 255, 255, 0.05);
+  --gs-nav-active: rgba(205, 251, 5, 0.12);
 }
 
 body.gs-nav-ready .os-shell > .sidebar,
@@ -41,13 +41,16 @@ body.gs-nav-ready .workspace {
   border-right: 1px solid var(--gs-nav-line);
   color: var(--gs-nav-text);
   font-family: var(--font-ui, Manrope, system-ui, sans-serif);
+  backdrop-filter: blur(24px) saturate(1.35);
+  -webkit-backdrop-filter: blur(24px) saturate(1.35);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 #gs-nav .gs-brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 18px 16px 14px;
+  padding: 18px 16px 12px;
   cursor: pointer;
   border: 0;
   background: transparent;
@@ -57,19 +60,18 @@ body.gs-nav-ready .workspace {
 }
 
 #gs-nav .gs-brand-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   object-fit: cover;
   flex: 0 0 auto;
-  border: 1px solid rgba(205, 251, 5, 0.45);
-  box-shadow: 0 0 20px rgba(205, 251, 5, 0.12);
-  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s;
+  box-shadow: 0 0 28px rgba(205, 251, 5, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s;
 }
 
 #gs-nav .gs-brand:hover .gs-brand-mark {
-  transform: translateY(-1px);
-  box-shadow: 0 0 28px rgba(205, 251, 5, 0.22);
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 0 36px rgba(205, 251, 5, 0.35);
 }
 
 #gs-nav .gs-brand-text {
@@ -89,10 +91,10 @@ body.gs-nav-ready .workspace {
 #gs-nav .gs-brand-text strong em {
   font-style: normal;
   background: var(--gs-nav-accent);
-  color: #050505;
-  padding: 0 3px;
+  color: #050508;
+  padding: 0 4px;
   margin-left: 1px;
-  border-radius: 3px;
+  border-radius: 6px;
 }
 
 #gs-nav .gs-brand-text small {
@@ -105,13 +107,16 @@ body.gs-nav-ready .workspace {
 
 #gs-nav .gs-flow-hint {
   margin: 0 14px 12px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--gs-nav-muted);
-  background: #121216;
-  border: 1px dashed #2a2a30;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  letter-spacing: -0.02em;
 }
 
 #gs-nav .gs-create {
@@ -138,13 +143,14 @@ body.gs-nav-ready .workspace {
   left: 0;
   right: 0;
   top: calc(100% + 8px);
-  background: #121216;
-  border: 1px solid #2a2a30;
-  border-radius: 14px;
+  background: rgba(14, 14, 22, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
   padding: 6px;
   display: none;
   z-index: 50;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 30px rgba(205, 251, 5, 0.06);
 }
 
 #gs-nav .gs-create-menu.open { display: grid; gap: 2px; }
@@ -154,8 +160,8 @@ body.gs-nav-ready .workspace {
   background: transparent;
   color: var(--gs-nav-text);
   text-align: left;
-  padding: 11px 12px;
-  border-radius: 10px;
+  padding: 12px 12px;
+  border-radius: 12px;
   cursor: pointer;
   font: inherit;
   font-size: 13px;
@@ -200,22 +206,22 @@ body.gs-nav-ready .workspace {
   background: transparent;
   color: var(--gs-nav-text);
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 14px;
   cursor: pointer;
   font: inherit;
   font-size: 13.5px;
   font-weight: 600;
   text-align: left;
-  transition: background 0.12s ease;
+  transition: background 0.15s ease, box-shadow 0.15s;
 }
 
 #gs-nav .gs-item:hover { background: var(--gs-nav-hover); }
 
 #gs-nav .gs-item.active {
-  background: rgba(205, 251, 5, 0.14);
+  background: var(--gs-nav-active);
   color: #fff;
   font-weight: 750;
-  box-shadow: inset 3px 0 0 var(--gs-nav-accent);
+  box-shadow: inset 3px 0 0 var(--gs-nav-accent), 0 0 24px rgba(205, 251, 5, 0.08);
 }
 
 #gs-nav .gs-item .ico {
@@ -228,6 +234,7 @@ body.gs-nav-ready .workspace {
 #gs-nav .gs-item.active .ico {
   opacity: 1;
   color: var(--gs-nav-accent);
+  filter: drop-shadow(0 0 6px rgba(205, 251, 5, 0.5));
 }
 
 #gs-nav .gs-footer {
@@ -235,7 +242,7 @@ body.gs-nav-ready .workspace {
   padding: 12px 12px 14px;
   display: grid;
   gap: 8px;
-  background: #07070a;
+  background: rgba(0, 0, 0, 0.25);
 }
 
 #gs-nav .gs-user {
@@ -248,13 +255,14 @@ body.gs-nav-ready .workspace {
 #gs-nav .gs-avatar {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--gs-nav-accent);
-  color: #050505;
+  color: #050508;
   display: grid;
   place-items: center;
   font-size: 12px;
   font-weight: 800;
+  box-shadow: 0 0 18px rgba(205, 251, 5, 0.3);
 }
 
 #gs-nav .gs-user strong {
@@ -278,7 +286,7 @@ body.gs-nav-ready .workspace {
 
 #gs-nav .gs-footer-actions button {
   border: 1px solid var(--gs-nav-line);
-  background: #121216;
+  background: rgba(255, 255, 255, 0.04);
   color: var(--gs-nav-text);
   border-radius: 999px;
   padding: 9px;
@@ -286,10 +294,11 @@ body.gs-nav-ready .workspace {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  backdrop-filter: blur(8px);
 }
 
 #gs-nav .gs-footer-actions button:hover {
-  border-color: var(--gs-nav-accent);
+  border-color: rgba(205, 251, 5, 0.4);
   background: rgba(205, 251, 5, 0.1);
 }
 
@@ -298,8 +307,8 @@ body.gs-nav-ready .workspace {
   margin-top: 6px;
   padding: 4px;
   border: 1px solid var(--gs-nav-line);
-  border-radius: 12px;
-  background: #121216;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 #gs-nav .gs-more-panel.open { display: grid; gap: 2px; }
@@ -321,6 +330,7 @@ body.gs-nav-ready .workspace {
     inset: 0;
     background: rgba(0, 0, 0, 0.55);
     z-index: 35;
+    backdrop-filter: blur(4px);
   }
   body.gs-nav-open #gs-nav-overlay { display: block; }
 }
@@ -333,20 +343,20 @@ body.gs-nav-ready .workspace {
   border: 0;
   border-radius: 999px;
   padding: 12px 18px;
-  background: var(--gs-nav-accent, #cdfb05);
-  color: #050505;
+  background: linear-gradient(180deg, #d8ff2e, #cdfb05);
+  color: #050508;
   font: inherit;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 10px 28px rgba(205, 251, 5, 0.28);
+  box-shadow: 0 0 28px rgba(205, 251, 5, 0.3);
 }
 
 .gs-user-admin-modal {
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
+  background: rgba(2, 2, 8, 0.55);
+  backdrop-filter: blur(14px);
   display: grid;
   place-items: center;
   padding: 16px;
@@ -356,12 +366,13 @@ body.gs-nav-ready .workspace {
   width: min(420px, 100%);
   max-height: 90vh;
   overflow: auto;
-  background: #121216;
-  color: #f3f3ef;
-  border: 1px solid #2a2a30;
-  border-radius: 16px;
+  background: rgba(14, 14, 22, 0.82);
+  color: #f4f4f1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
   padding: 18px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5), 0 0 40px rgba(205, 251, 5, 0.06);
 }
 .gs-user-admin-card header {
   display: flex;
@@ -378,19 +389,19 @@ body.gs-nav-ready .workspace {
 .gs-user-admin-card header button {
   background: transparent;
   border: 0;
-  color: #8f8f88;
+  color: #9b9b96;
   font-size: 22px;
   cursor: pointer;
 }
-.gs-user-admin-card .hint { font-size: 13px; color: #8f8f88; margin-bottom: 12px; }
-.gs-user-admin-card label { display: grid; gap: 4px; margin-bottom: 8px; font-size: 12px; color: #8f8f88; font-weight: 700; }
+.gs-user-admin-card .hint { font-size: 13px; color: #9b9b96; margin-bottom: 12px; }
+.gs-user-admin-card label { display: grid; gap: 4px; margin-bottom: 8px; font-size: 12px; color: #9b9b96; font-weight: 700; }
 .gs-user-admin-card input, .gs-user-admin-card select {
   padding: 10px 12px;
-  border: 1px solid #2a2a30;
-  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   font: inherit;
-  background: #0a0a0d;
-  color: #f3f3ef;
+  background: rgba(0, 0, 0, 0.35);
+  color: #f4f4f1;
 }
 .gs-user-admin-card .button {
   border-radius: 999px;
@@ -400,12 +411,13 @@ body.gs-nav-ready .workspace {
   border: 1px solid transparent;
 }
 .gs-user-admin-card .button.primary {
-  background: #cdfb05;
-  color: #050505;
+  background: linear-gradient(180deg, #d8ff2e, #cdfb05);
+  color: #050508;
+  box-shadow: 0 0 20px rgba(205, 251, 5, 0.25);
 }
-.gs-user-admin-card hr { margin: 14px 0; border: 0; border-top: 1px solid #222228; }
+.gs-user-admin-card hr { margin: 14px 0; border: 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
 .gs-user-admin-card .button.danger { background: #b42318; color: #fff; }
-.gs-user-admin-card .auth-error { min-height: 1.2em; color: #ff625c; font-size: 13px; margin-top: 6px; }
+.gs-user-admin-card .auth-error { min-height: 1.2em; color: #ff6b66; font-size: 13px; margin-top: 6px; }
 
 body.role-sales_manager .gs-user-admin-fab,
 body.role-designer .gs-user-admin-fab { display: none; }
