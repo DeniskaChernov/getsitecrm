@@ -260,8 +260,8 @@ function buildNav(user, rolesFromApi) {
       <img class="gs-brand-mark" src="/assets/logo-getsite.png" alt="getsite*" />
     </button>
     <div class="gs-create" style="position:relative">
-      <button type="button" class="button primary" id="gs-create-btn" aria-label="Создать" title="Создать">
-        ${iconSvg('plus')}
+      <button type="button" class="button primary" id="gs-create-btn" aria-label="Создать" title="Создать" aria-expanded="false" aria-haspopup="menu">
+        <span class="gs-plus" aria-hidden="true"></span>
       </button>
       <div class="gs-create-menu" id="gs-create-menu" role="menu">
         ${createItems
@@ -316,15 +316,28 @@ function buildNav(user, rolesFromApi) {
 
   const go = (target) => {
     document.getElementById('gs-create-menu')?.classList.remove('open');
+    document.querySelector('#gs-nav .gs-create')?.classList.remove('open');
+    const createBtn = document.getElementById('gs-create-btn');
+    if (createBtn) createBtn.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('gs-nav-open');
     if (goToSection(target)) syncActive(target);
+  };
+
+  const setCreateOpen = (open) => {
+    const wrap = document.querySelector('#gs-nav .gs-create');
+    const menu = document.getElementById('gs-create-menu');
+    const btn = document.getElementById('gs-create-btn');
+    wrap?.classList.toggle('open', open);
+    menu?.classList.toggle('open', open);
+    btn?.setAttribute('aria-expanded', open ? 'true' : 'false');
   };
 
   root.addEventListener('click', async (e) => {
     const createBtn = e.target.closest('#gs-create-btn');
     if (createBtn) {
       e.preventDefault();
-      document.getElementById('gs-create-menu')?.classList.toggle('open');
+      const next = !document.getElementById('gs-create-menu')?.classList.contains('open');
+      setCreateOpen(next);
       return;
     }
 
@@ -355,7 +368,7 @@ function buildNav(user, rolesFromApi) {
 
   document.addEventListener('click', (e) => {
     if (!e.target.closest('#gs-nav .gs-create')) {
-      document.getElementById('gs-create-menu')?.classList.remove('open');
+      setCreateOpen(false);
     }
   });
 

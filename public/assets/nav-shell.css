@@ -48,7 +48,7 @@ body.gs-nav-ready .workspace {
 
 #gs-nav .gs-brand {
   display: block;
-  padding: 14px 14px 10px;
+  padding: 12px 12px 8px;
   cursor: pointer;
   border: 0;
   background: transparent;
@@ -62,20 +62,25 @@ body.gs-nav-ready .workspace {
   width: 100%;
   height: auto;
   aspect-ratio: 1 / 1;
-  max-height: 120px;
+  max-height: none;
   object-fit: cover;
-  border-radius: 18px;
-  box-shadow: 0 0 28px rgba(205, 251, 5, 0.22);
+  object-position: center;
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 1px rgba(205, 251, 5, 0.25),
+    0 0 32px rgba(205, 251, 5, 0.2);
   transition: transform 0.2s ease, box-shadow 0.2s;
 }
 
 #gs-nav .gs-brand:hover .gs-brand-mark {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow: 0 0 36px rgba(205, 251, 5, 0.35);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(205, 251, 5, 0.4),
+    0 0 40px rgba(205, 251, 5, 0.32);
 }
 
 #gs-nav .gs-create {
-  margin: 4px 14px 16px;
+  margin: 2px 12px 14px;
   display: flex;
   position: relative;
 }
@@ -84,36 +89,77 @@ body.gs-nav-ready .workspace {
 #gs-nav #gs-create-btn {
   flex: 1;
   width: 100%;
-  min-height: 52px !important;
-  height: 52px;
+  min-height: 56px !important;
+  height: 56px;
   padding: 0 !important;
   justify-content: center;
   align-items: center;
   display: inline-flex !important;
   gap: 0;
-  border-radius: 16px !important;
-  font-size: 0 !important; /* hide any leftover text nodes */
+  border-radius: 18px !important;
+  font-size: 0 !important;
+  position: relative;
 }
 
-#gs-nav #gs-create-btn .ico {
-  width: 26px;
-  height: 26px;
-  stroke-width: 2.4;
+#gs-nav .gs-plus {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  display: block;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#gs-nav .gs-plus::before,
+#gs-nav .gs-plus::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: #050508;
+  border-radius: 3px;
+  transform: translate(-50%, -50%);
+}
+
+#gs-nav .gs-plus::before {
+  width: 22px;
+  height: 3.5px;
+}
+
+#gs-nav .gs-plus::after {
+  width: 3.5px;
+  height: 22px;
+}
+
+#gs-nav .gs-create.open #gs-create-btn {
+  box-shadow:
+    0 0 0 1px rgba(205, 251, 5, 0.45),
+    0 0 36px rgba(205, 251, 5, 0.35) !important;
+}
+
+#gs-nav .gs-create.open .gs-plus {
+  transform: rotate(45deg);
 }
 
 #gs-nav .gs-create-menu {
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(100% + 8px);
-  background: rgba(14, 14, 22, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  top: calc(100% + 10px);
+  background: rgba(14, 14, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
-  padding: 6px;
+  padding: 8px;
   display: none;
   z-index: 50;
   backdrop-filter: blur(22px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 30px rgba(205, 251, 5, 0.06);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(205, 251, 5, 0.08);
+  transform-origin: top center;
+  animation: gs-menu-in 0.18s ease both;
+}
+
+@keyframes gs-menu-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 #gs-nav .gs-create-menu.open { display: grid; gap: 2px; }

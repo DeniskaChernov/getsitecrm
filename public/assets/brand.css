@@ -635,3 +635,120 @@ body.gs-nav-ready .workspace {
   .boot-sidebar { display: none; }
   .boot-cards { grid-template-columns: 1fr 1fr; }
 }
+
+/* —— Design polish pass —— */
+::selection {
+  background: rgba(205, 251, 5, 0.35);
+  color: #050508;
+}
+
+body.gs-nav-ready .page-wrap,
+body.gs-nav-ready .workspace > main,
+body.gs-nav-ready main.page-wrap {
+  padding: 28px 28px 48px !important;
+  max-width: 1400px;
+}
+
+/* Soft glass scrollbars */
+#gs-nav .gs-scroll,
+.workspace,
+.page-wrap,
+.form-modal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(205, 251, 5, 0.35) transparent;
+}
+
+#gs-nav .gs-scroll::-webkit-scrollbar,
+.workspace::-webkit-scrollbar,
+.page-wrap::-webkit-scrollbar,
+.form-modal::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#gs-nav .gs-scroll::-webkit-scrollbar-thumb,
+.workspace::-webkit-scrollbar-thumb,
+.page-wrap::-webkit-scrollbar-thumb,
+.form-modal::-webkit-scrollbar-thumb {
+  background: rgba(205, 251, 5, 0.28);
+  border-radius: 99px;
+}
+
+/* Tables / lists as glass rows */
+table,
+.table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100%;
+}
+
+thead th {
+  font-family: var(--font-ui) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--gs-muted) !important;
+  font-weight: 750 !important;
+  border-bottom: 1px solid var(--gs-glass-border) !important;
+  padding: 12px 14px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+tbody td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: 14px !important;
+  vertical-align: middle !important;
+}
+
+tbody tr {
+  transition: background 0.15s ease;
+}
+
+tbody tr:hover {
+  background: rgba(205, 251, 5, 0.05) !important;
+}
+
+/* Heading actions sit cleaner */
+.heading-actions {
+  gap: 10px !important;
+}
+
+.top-actions {
+  gap: 10px !important;
+}
+
+/* Quiet down leftover dark hard fills */
+.panel-title {
+  border-bottom: 1px solid var(--gs-glass-border) !important;
+  padding: 16px 18px !important;
+}
+
+/* Status chips */
+.status-pill,
+.badge,
+.service-type-badge {
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+}
+
+.service-type-badge {
+  padding: 4px 10px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid var(--gs-glass-border) !important;
+}
+
+.service-type-badge.основная,
+.service-type-badge[class*='основ'] {
+  background: rgba(205, 251, 5, 0.12) !important;
+  border-color: rgba(205, 251, 5, 0.3) !important;
+  color: var(--gs-lime) !important;
+}
+
+/* Create FAB open state from brand layer */
+#gs-nav #gs-create-btn.button.primary {
+  border-radius: 18px !important;
+  min-height: 56px !important;
+  padding: 0 !important;
+}
