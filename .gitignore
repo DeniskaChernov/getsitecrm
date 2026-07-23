@@ -1,0 +1,9 @@
+node_modules/
+.firecrawl/
+data/db.json
+.DS_Store
+*.log
+.env
+.env.*
+getsite-home.png
+.playwright-mcp/

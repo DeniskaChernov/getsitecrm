@@ -1,0 +1,23 @@
+{
+  "name": "getsitecrm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GetSite OS — внутренняя CRM / операционная система getsite.uz",
+  "main": "server.js",
+  "scripts": {
+    "prestart": "npm run build:framework",
+    "build:framework": "esbuild src/framework-shim.js --bundle --format=esm --outfile=public/assets/framework-CXnKph_e.js --platform=browser --minify",
+    "start": "node server.js",
+    "dev": "npm run build:framework && node server.js",
+    "reset-data": "node scripts/reset-data.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.1",
+    "express": "^4.21.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}
