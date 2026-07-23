@@ -16,6 +16,22 @@ const {
   defaultUsers,
   ROLES,
 } = require('./lib/auth');
+const { requiredInProduction } = require('./config/env-vars');
+
+function warnMissingEnv() {
+  const missing = [];
+  if (process.env.NODE_ENV === 'production') {
+    for (const key of requiredInProduction) {
+      if (!String(process.env[key] || '').trim()) missing.push(key);
+    }
+  }
+  if (!process.env.SESSION_SECRET) {
+    console.warn('[env] SESSION_SECRET не задан — используется dev-секрет. Задайте свой ключ в Railway Variables.');
+  }
+  if (missing.length) {
+    console.warn(`[env] В production не заданы: ${missing.join(', ')}. Заполните Variables в Railway.`);
+  }
+}
 
 async function resolveUser(req) {
   const session = getSessionUser(req);
@@ -25,6 +41,7 @@ async function resolveUser(req) {
 }
 
 async function main() {
+  warnMissingEnv();
   const boot = await ensureDb();
   // Ensure demo users exist with password hashes
   const data = await readDb();
