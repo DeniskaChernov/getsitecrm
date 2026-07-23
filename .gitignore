@@ -4,6 +4,7 @@ data/db.json
 .DS_Store
 *.log
 .env
-.env.*
+.env.local
+!.env.example
 getsite-home.png
 .playwright-mcp/
