@@ -52,7 +52,6 @@ html {
 body,
 body.__variable_geist_1btiua0,
 .__variable_geist_1btiua0 {
-  font-family: var(--font-ui) !important;
   background:
     radial-gradient(1100px 600px at 90% -10%, rgba(205, 251, 5, 0.07), transparent 55%),
     radial-gradient(900px 500px at -10% 80%, rgba(94, 240, 208, 0.05), transparent 50%),
@@ -61,6 +60,23 @@ body.__variable_geist_1btiua0,
   color: var(--gs-text) !important;
   letter-spacing: -0.016em;
   -webkit-font-smoothing: antialiased;
+}
+
+body,
+body.__variable_geist_1btiua0,
+.__variable_geist_1btiua0,
+button,
+input,
+select,
+textarea,
+label,
+.table-search,
+.table-search input,
+.search-trigger,
+.search-trigger span,
+.toolbar,
+.toolbar * {
+  font-family: var(--font-ui) !important;
 }
 
 /* Swiss / editorial type */
@@ -443,6 +459,7 @@ textarea:focus {
   backdrop-filter: blur(14px) !important;
 }
 
+/* Topbar command search */
 .search-trigger,
 .icon-button,
 kbd {
@@ -450,14 +467,23 @@ kbd {
   color: var(--gs-muted) !important;
   border: 1px solid var(--gs-glass-border) !important;
   backdrop-filter: blur(12px);
+  font-family: var(--font-ui) !important;
 }
 
 .search-trigger {
   width: min(380px, 44vw) !important;
-  height: 42px !important;
+  height: 44px !important;
   border-radius: var(--gs-radius-pill) !important;
-  padding: 0 14px !important;
-  font-size: 13px !important;
+  padding: 0 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  gap: 10px !important;
+}
+
+.search-trigger span {
+  font-family: var(--font-ui) !important;
+  font-size: 14px !important;
+  color: var(--gs-muted) !important;
 }
 
 .search-trigger:hover {
@@ -470,6 +496,90 @@ kbd {
   border-radius: 8px !important;
   font-family: var(--font-mono) !important;
   font-size: 11px !important;
+}
+
+/* Table / page search (leads, clients, price…) — was stuck on Arial + #151515 */
+.table-search,
+.toolbar select,
+.filter-button,
+.money-filters button,
+.activity-filters select {
+  font-family: var(--font-ui) !important;
+  color: var(--gs-muted) !important;
+  background: rgba(18, 18, 26, 0.65) !important;
+  border: 1px solid var(--gs-glass-border) !important;
+  border-radius: 999px !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  padding: 0 14px !important;
+  backdrop-filter: blur(16px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.25) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  gap: 10px !important;
+}
+
+.table-search {
+  min-width: min(360px, 100%) !important;
+  align-items: center !important;
+  display: flex !important;
+}
+
+.table-search svg {
+  color: var(--gs-muted) !important;
+  flex: 0 0 auto;
+  opacity: 0.85;
+}
+
+.table-search input {
+  width: 100% !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  min-height: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-family: var(--font-ui) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--gs-text) !important;
+}
+
+.table-search input::placeholder {
+  color: var(--gs-muted) !important;
+  opacity: 1 !important;
+  font-family: var(--font-ui) !important;
+}
+
+.table-search:focus-within,
+.toolbar select:focus,
+.filter-button:focus {
+  border-color: rgba(205, 251, 5, 0.45) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 3px rgba(205, 251, 5, 0.12),
+    0 0 22px rgba(205, 251, 5, 0.1) !important;
+}
+
+.toolbar select,
+.filter-button,
+.money-filters button,
+.activity-filters select {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--gs-text) !important;
+  cursor: pointer;
+}
+
+.toolbar,
+.table-toolbar,
+.filters-row,
+.money-filters,
+.activity-filters {
+  gap: 10px !important;
+  align-items: center !important;
 }
 
 .workflow-drawer,
