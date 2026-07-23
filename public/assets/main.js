@@ -47,29 +47,36 @@ function renderAuth(demoHints = false) {
 
   rootEl.innerHTML = `
     <div class="auth-shell">
-      <form class="auth-card" id="auth-form">
-        <div class="auth-brand">
-          <span class="brand-get">get</span>site<span class="brand-star">*</span><small>OS</small>
+      <section class="auth-hero" aria-label="getsite">
+        <div class="auth-hero-inner">
+          <img class="auth-logo" src="/assets/logo-getsite.png" width="220" height="220" alt="getsite*" />
+          <h1>Операционная система <span>продаж и проектов</span></h1>
+          <p>Один контур для заявок, смет, производства и денег getsite.uz</p>
         </div>
-        <h1>Вход в систему</h1>
-        <p class="lead">Рабочее пространство getsite.uz — продажи, проекты и деньги в одном контуре. Аккаунт выдаёт основатель в Настройках.</p>
-        <label><span>Email</span><input name="email" type="email" required placeholder="you@getsite.uz" autocomplete="username" /></label>
-        <label><span>Пароль</span><input name="password" type="password" required minlength="6" placeholder="Минимум 6 символов" autocomplete="current-password" /></label>
-        <div class="auth-error" id="auth-error"></div>
-        <div class="auth-actions">
-          <button class="button primary" type="submit">Войти</button>
-        </div>
-        ${
-          demoHints
-            ? `<div class="auth-demos">
-          <div><strong>Денис</strong> — denis@getsite.uz / denis123 (основатель)</div>
-          <div><strong>Никита</strong> — nikita@getsite.uz / nikita123 (учредитель)</div>
-          <div><strong>Менеджер</strong> — manager@getsite.uz / manager123</div>
-          <div><strong>Дизайнер</strong> — designer@getsite.uz / designer123</div>
-        </div>`
-            : ''
-        }
-      </form>
+      </section>
+      <div class="auth-panel-wrap">
+        <form class="auth-card" id="auth-form">
+          <div class="auth-kicker">GetSite OS</div>
+          <h2>Вход</h2>
+          <p class="lead">Рабочее пространство команды getsite.uz. Аккаунт выдаёт основатель.</p>
+          <label><span>Email</span><input name="email" type="email" required placeholder="you@getsite.uz" autocomplete="username" /></label>
+          <label><span>Пароль</span><input name="password" type="password" required minlength="6" placeholder="Минимум 6 символов" autocomplete="current-password" /></label>
+          <div class="auth-error" id="auth-error"></div>
+          <div class="auth-actions">
+            <button class="button primary" type="submit">Войти</button>
+          </div>
+          ${
+            demoHints
+              ? `<div class="auth-demos">
+            <div><strong>Денис</strong> — denis@getsite.uz / denis123 (основатель)</div>
+            <div><strong>Никита</strong> — nikita@getsite.uz / nikita123 (учредитель)</div>
+            <div><strong>Менеджер</strong> — manager@getsite.uz / manager123</div>
+            <div><strong>Дизайнер</strong> — designer@getsite.uz / designer123</div>
+          </div>`
+              : ''
+          }
+        </form>
+      </div>
     </div>
   `;
 

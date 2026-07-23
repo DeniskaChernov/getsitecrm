@@ -1,0 +1,255 @@
+/**
+ * GetSite brand theme 2026 — поверх бандла os-client.
+ * Айдентика: acid lime #CDFB05 + black, логотип getsite*.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
+
+:root {
+  --gs-lime: #cdfb05;
+  --gs-lime-bright: #d8ff2a;
+  --gs-lime-dim: #a8cf04;
+  --gs-ink: #050505;
+  --gs-ink-2: #0a0a0a;
+  --gs-ink-3: #121212;
+  --gs-ink-4: #1a1a1a;
+  --gs-line: #2a2a28;
+  --gs-line-soft: #1e1e1c;
+  --gs-text: #f2f2ee;
+  --gs-muted: #8c8c86;
+  --gs-radius: 10px;
+  --gs-radius-lg: 14px;
+  --font-display: 'Syne', 'Outfit', sans-serif;
+  --font-ui: 'Outfit', 'Geist', system-ui, sans-serif;
+
+  /* Align with os-client tokens */
+  --bg: var(--gs-ink);
+  --surface: #0e0e0e;
+  --surface-2: #141414;
+  --surface-3: #1a1a1a;
+  --border: var(--gs-line);
+  --border-soft: var(--gs-line-soft);
+  --lime: var(--gs-lime);
+  --lime-dark: var(--gs-lime-dim);
+  --text: var(--gs-text);
+  --muted: var(--gs-muted);
+  --muted-2: #63635e;
+
+  --font-geist-sans: var(--font-ui);
+  --font-geist-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--gs-ink);
+}
+
+body,
+body.__variable_geist_1btiua0,
+.__variable_geist_1btiua0 {
+  font-family: var(--font-ui) !important;
+  background: var(--gs-ink) !important;
+  color: var(--gs-text);
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .heading strong, .crumb strong, .auth-card h1 {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+  font-weight: 700;
+}
+
+/* —— Primary actions —— */
+.button.primary,
+button.button.primary,
+#gs-nav .gs-create > button.primary {
+  background: var(--gs-lime) !important;
+  border: 1px solid var(--gs-lime) !important;
+  color: #050505 !important;
+  font-weight: 700 !important;
+  border-radius: var(--gs-radius) !important;
+  box-shadow: 0 0 0 0 rgba(205, 251, 5, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.15s ease;
+}
+
+.button.primary:hover,
+button.button.primary:hover,
+#gs-nav .gs-create > button.primary:hover {
+  background: var(--gs-lime-bright) !important;
+  border-color: var(--gs-lime-bright) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(205, 251, 5, 0.22);
+}
+
+.button:not(.primary) {
+  border-radius: var(--gs-radius) !important;
+}
+
+/* —— Shell surfaces —— */
+.os-shell {
+  background:
+    radial-gradient(900px 420px at 70% -10%, rgba(205, 251, 5, 0.06), transparent 55%),
+    var(--gs-ink) !important;
+}
+
+.workspace {
+  background: transparent;
+}
+
+.topbar {
+  background: rgba(5, 5, 5, 0.82) !important;
+  backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom-color: var(--gs-line) !important;
+}
+
+.panel,
+.panel-flat,
+article.panel {
+  background: var(--surface) !important;
+  border-color: var(--gs-line) !important;
+  border-radius: var(--gs-radius-lg) !important;
+}
+
+.form-modal,
+.command-palette {
+  background: #0c0c0c !important;
+  border-color: #333330 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(205, 251, 5, 0.06) !important;
+}
+
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.72) !important;
+  backdrop-filter: blur(8px);
+}
+
+input,
+select,
+textarea {
+  border-radius: var(--gs-radius) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline-color: color-mix(in oklab, var(--gs-lime) 55%, transparent) !important;
+  border-color: color-mix(in oklab, var(--gs-lime) 45%, var(--gs-line)) !important;
+}
+
+/* Active / accent chips */
+.lime-text,
+[class*='lime-text'] {
+  color: var(--gs-lime) !important;
+}
+
+/* Stat cards / accent bars */
+.project-stats .stat,
+.kpi-card {
+  border-radius: var(--gs-radius-lg);
+}
+
+/* Hide legacy text logos inside React sidebar (we use custom nav) */
+body.gs-nav-ready .sidebar .brand,
+body.gs-nav-ready .boot-brand {
+  /* no-op for hidden sidebar */
+}
+
+/* —— Boot skeleton —— */
+.system-boot {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px 1fr;
+  background: var(--gs-ink);
+  color: var(--gs-muted);
+  position: relative;
+}
+
+.boot-sidebar {
+  border-right: 1px solid var(--gs-line);
+  padding: 18px 14px;
+  background: #070707;
+}
+
+.boot-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.boot-brand img {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.boot-brand .wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.05em;
+  color: var(--gs-text);
+}
+
+.boot-brand .wordmark em {
+  font-style: normal;
+  color: var(--gs-lime);
+}
+
+.boot-create,
+.boot-nav-lines i,
+.boot-topbar i,
+.boot-heading i,
+.boot-route i,
+.boot-cards i,
+.boot-panel i,
+.boot-line i {
+  display: block;
+  background: linear-gradient(90deg, #161616, #222, #161616);
+  background-size: 200% 100%;
+  animation: gs-shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.boot-create { height: 40px; margin-bottom: 18px; }
+.boot-nav-lines { display: grid; gap: 10px; }
+.boot-nav-lines i { height: 34px; }
+.boot-workspace { padding: 18px 22px; }
+.boot-topbar { display: flex; gap: 12px; margin-bottom: 28px; }
+.boot-topbar i { height: 14px; width: 120px; }
+.boot-heading { display: grid; gap: 10px; margin-bottom: 20px; }
+.boot-heading i:nth-child(1) { height: 28px; width: 40%; }
+.boot-heading i:nth-child(2) { height: 12px; width: 55%; }
+.boot-heading i:nth-child(3) { height: 12px; width: 30%; }
+.boot-route { display: flex; gap: 8px; margin-bottom: 22px; }
+.boot-route i { height: 32px; width: 88px; }
+.boot-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.boot-cards i { height: 92px; }
+.boot-panel { display: grid; gap: 10px; }
+.boot-panel i { height: 16px; width: 100%; }
+.boot-status {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--gs-muted);
+}
+.boot-line { width: 120px; }
+.boot-line i { height: 3px; }
+
+@keyframes gs-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (max-width: 900px) {
+  .system-boot { grid-template-columns: 1fr; }
+  .boot-sidebar { display: none; }
+  .boot-cards { grid-template-columns: 1fr 1fr; }
+}

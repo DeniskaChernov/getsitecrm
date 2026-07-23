@@ -257,7 +257,11 @@ function buildNav(user, rolesFromApi) {
   root.id = 'gs-nav';
   root.innerHTML = `
     <button type="button" class="gs-brand" data-target="Главная" aria-label="На главную">
-      <span class="g">get</span>site<span class="star">*</span><small>OS</small>
+      <img class="gs-brand-mark" src="/assets/logo-getsite.png" width="40" height="40" alt="" />
+      <span class="gs-brand-text">
+        <strong>getsite<em>*</em></strong>
+        <small>OS</small>
+      </span>
     </button>
     <div class="gs-create" style="position:relative">
       <button type="button" class="button primary" id="gs-create-btn">${iconSvg('plus')} Создать</button>
