@@ -357,14 +357,23 @@ function buildNav(user, rolesFromApi) {
     setNavCollapsed(true);
   });
 
+  const collapseBtn = document.getElementById('gs-nav-collapse');
+  if (collapseBtn) {
+    collapseBtn.title = 'Скрыть меню (Ctrl+B)';
+    collapseBtn.setAttribute('aria-keyshortcuts', 'Control+B');
+  }
+  reopen.title = 'Показать меню (Ctrl+B)';
+
   reopen.addEventListener('click', () => setNavCollapsed(false));
 
   const go = (target) => {
     setCreateOpen(false);
+    document.getElementById('gs-more-panel')?.classList.remove('open');
     document.body.classList.remove('gs-nav-open');
     document.body.classList.add('gs-page-animating');
     window.setTimeout(() => document.body.classList.remove('gs-page-animating'), 400);
-    if (goToSection(target)) syncActive(target);
+    syncActive(target);
+    goToSection(target);
   };
 
   root.addEventListener('click', async (e) => {
@@ -406,6 +415,37 @@ function buildNav(user, rolesFromApi) {
       setCreateOpen(false);
     }
   });
+
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      const typing =
+        e.target &&
+        (e.target.tagName === 'INPUT' ||
+          e.target.tagName === 'TEXTAREA' ||
+          e.target.tagName === 'SELECT' ||
+          e.target.isContentEditable);
+
+      if (e.key === 'Escape') {
+        const createOpen = document.getElementById('gs-create-menu')?.classList.contains('open');
+        const moreOpen = document.getElementById('gs-more-panel')?.classList.contains('open');
+        if (createOpen || moreOpen) {
+          e.preventDefault();
+          setCreateOpen(false);
+          document.getElementById('gs-more-panel')?.classList.remove('open');
+          return;
+        }
+      }
+
+      if (!typing && (e.key === 'b' || e.key === 'B') && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        const next = !document.body.classList.contains('gs-nav-collapsed');
+        setCreateOpen(false);
+        setNavCollapsed(next);
+      }
+    },
+    true
+  );
 
   // Mobile: open via original hamburger if present
   document.addEventListener(

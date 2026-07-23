@@ -23,6 +23,12 @@
     'keydown',
     (e) => {
       if (e.key !== 'Escape') return;
+      const adminModal = document.getElementById('gs-user-admin-modal');
+      if (adminModal && !adminModal.hidden) {
+        e.preventDefault();
+        adminModal.hidden = true;
+        return;
+      }
       const backdrops = [...document.querySelectorAll('.modal-backdrop')];
       if (!backdrops.length) return;
       e.preventDefault();

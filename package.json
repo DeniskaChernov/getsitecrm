@@ -12,6 +12,8 @@
     "reset-data": "node scripts/reset-data.js",
     "qa": "node scripts/qa-acceptance.js",
     "qa:stress": "node scripts/qa-stress-15x5.js",
+    "qa:wave2": "node scripts/qa-stress-wave2.js",
+    "qa:all": "node scripts/qa-acceptance.js && node scripts/qa-stress-15x5.js && node scripts/qa-stress-wave2.js",
     "patch:roles": "node scripts/patch-roles-ui.js",
     "patch:finance": "node scripts/patch-fixed-share.js",
     "patch:funnel": "node scripts/patch-funnel-status.js"
