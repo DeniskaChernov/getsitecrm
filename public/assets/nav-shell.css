@@ -35,13 +35,18 @@ body.gs-nav-ready .workspace {
 body.gs-nav-collapsed { --gs-nav-w: 0px; }
 
 body.gs-nav-collapsed #gs-nav {
-  transform: translateX(calc(-100% - 12px));
-  pointer-events: none;
-  opacity: 0;
+  animation: none !important;
+  transform: translateX(calc(-100% - 24px)) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 body.gs-nav-collapsed .gs-nav-reopen {
   display: inline-flex !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 #gs-nav {
@@ -176,7 +181,7 @@ body.gs-nav-collapsed .gs-nav-reopen {
   position: fixed;
   left: 12px;
   top: 14px;
-  z-index: 45;
+  z-index: 60;
   width: 44px;
   height: 44px;
   padding: 0;
@@ -394,8 +399,19 @@ body.gs-nav-collapsed .gs-nav-reopen {
     opacity: 1;
     pointer-events: auto;
   }
-  body.gs-nav-open #gs-nav { transform: translateX(0); }
-  body.gs-nav-collapsed #gs-nav { transform: translateX(-105%); }
+  body.gs-nav-open #gs-nav {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  body.gs-nav-collapsed #gs-nav {
+    transform: translateX(-105%) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    animation: none !important;
+  }
   .gs-nav-reopen { display: none !important; }
   #gs-nav-overlay {
     display: none;

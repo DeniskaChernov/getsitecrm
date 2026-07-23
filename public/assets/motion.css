@@ -38,8 +38,16 @@
 }
 
 #gs-nav {
-  animation: gs-slide-rail 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease;
+  /* opacity-only entrance — do not lock transform (breaks collapse) */
+  animation: gs-fade-in 0.35s ease both;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.28s ease,
+    visibility 0.28s ease;
+}
+
+body.gs-nav-collapsed #gs-nav {
+  animation: none !important;
 }
 
 #gs-nav .gs-item {
