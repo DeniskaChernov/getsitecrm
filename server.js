@@ -7,6 +7,7 @@ const {
   getSessionUser,
   setSessionCookie,
   clearSessionCookie,
+  revokeSessionFromRequest,
   createSessionToken,
   verifyPassword,
   scryptHash,
@@ -39,10 +40,10 @@ function assertProductionEnv() {
   }
 }
 
-/** Simple in-memory rate limit for login */
+/** In-memory rate limit: only failed logins count; success clears the bucket */
 const loginAttempts = new Map();
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const LOGIN_MAX = 20;
+const LOGIN_MAX_FAILS = 12;
 
 function clientIp(req) {
   const xf = String(req.headers['x-forwarded-for'] || '')
@@ -51,20 +52,37 @@ function clientIp(req) {
   return xf || req.socket?.remoteAddress || 'unknown';
 }
 
+function loginRateKey(req) {
+  return `${clientIp(req)}:${str(req.body?.email).trim().toLowerCase()}`;
+}
+
 function checkLoginRate(req) {
-  const key = `${clientIp(req)}:${str(req.body?.email).trim().toLowerCase()}`;
+  const key = loginRateKey(req);
   const now = Date.now();
-  let entry = loginAttempts.get(key);
+  const entry = loginAttempts.get(key);
   if (!entry || now - entry.start > LOGIN_WINDOW_MS) {
-    entry = { start: now, count: 0 };
-    loginAttempts.set(key, entry);
+    return { ok: true };
   }
-  entry.count += 1;
-  if (entry.count > LOGIN_MAX) {
+  if (entry.count >= LOGIN_MAX_FAILS) {
     const retryAfter = Math.ceil((LOGIN_WINDOW_MS - (now - entry.start)) / 1000);
     return { ok: false, retryAfter };
   }
   return { ok: true };
+}
+
+function recordLoginFailure(req) {
+  const key = loginRateKey(req);
+  const now = Date.now();
+  let entry = loginAttempts.get(key);
+  if (!entry || now - entry.start > LOGIN_WINDOW_MS) {
+    entry = { start: now, count: 0 };
+  }
+  entry.count += 1;
+  loginAttempts.set(key, entry);
+}
+
+function clearLoginFailures(req) {
+  loginAttempts.delete(loginRateKey(req));
 }
 
 async function resolveUser(req) {
@@ -127,7 +145,7 @@ async function main() {
   app.get('/api/auth/me', async (req, res) => {
     try {
       const user = await resolveUser(req);
-      if (!user) return res.status(401).json({ authenticated: false });
+      if (!user) return res.json({ authenticated: false });
       res.json({
         authenticated: true,
         user: publicUser(user),
@@ -145,7 +163,10 @@ async function main() {
       const rate = checkLoginRate(req);
       if (!rate.ok) {
         res.setHeader('Retry-After', String(rate.retryAfter || 60));
-        return res.status(429).json({ error: 'Слишком много попыток входа. Подождите и попробуйте снова.' });
+        return res.status(429).json({
+          error: 'Слишком много неудачных попыток входа. Подождите и попробуйте снова.',
+          retryAfter: rate.retryAfter || 60,
+        });
       }
       const email = str(req.body?.email).trim().toLowerCase();
       const password = str(req.body?.password);
@@ -155,11 +176,13 @@ async function main() {
       const db = await readDb();
       const user = (db.users || []).find((u) => u.email.toLowerCase() === email);
       if (!user || !verifyPassword(password, user.passwordHash)) {
+        recordLoginFailure(req);
         return res.status(401).json({ error: 'Неверный email или пароль' });
       }
       if (user.active === false) {
         return res.status(403).json({ error: 'Пользователь отключён' });
       }
+      clearLoginFailures(req);
       setSessionCookie(res, createSessionToken(user), req);
       res.json({ ok: true, user: publicUser(user) });
     } catch (err) {
@@ -271,6 +294,7 @@ async function main() {
   });
 
   app.post('/api/auth/logout', (req, res) => {
+    revokeSessionFromRequest(req);
     clearSessionCookie(res);
     res.json({ ok: true });
   });

@@ -11,8 +11,10 @@
     "dev": "npm run build:framework && node server.js",
     "reset-data": "node scripts/reset-data.js",
     "qa": "node scripts/qa-acceptance.js",
+    "qa:stress": "node scripts/qa-stress-15x5.js",
     "patch:roles": "node scripts/patch-roles-ui.js",
-    "patch:finance": "node scripts/patch-fixed-share.js"
+    "patch:finance": "node scripts/patch-fixed-share.js",
+    "patch:funnel": "node scripts/patch-funnel-status.js"
   },
   "engines": {
     "node": ">=18"

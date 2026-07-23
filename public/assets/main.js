@@ -22,7 +22,7 @@ function hasAuthMarker() {
   return /(?:^|;\s*)getsite_auth=1(?:;|$)/.test(document.cookie);
 }
 
-async function restoreSession(retries = 3) {
+async function restoreSession(retries = 2) {
   let lastError = null;
   for (let i = 0; i < retries; i++) {
     try {
@@ -31,7 +31,7 @@ async function restoreSession(retries = 3) {
       return null;
     } catch (err) {
       lastError = err;
-      if (i < retries - 1) await new Promise((r) => setTimeout(r, 300 * (i + 1)));
+      if (i < retries - 1) await new Promise((r) => setTimeout(r, 250 * (i + 1)));
     }
   }
   if (hasAuthMarker()) {
@@ -91,7 +91,10 @@ function renderAuth(demoHints = false) {
       const me = await api('/api/auth/me').catch(() => ({ user: result.user, roles: null }));
       await bootApp(me.user || result.user, me.roles);
     } catch (err) {
-      errEl.textContent = err.message || 'Не удалось выполнить запрос';
+      const msg = err.message || 'Не удалось выполнить запрос';
+      errEl.textContent = /слишком много/i.test(msg)
+        ? `${msg} Обычно хватает 1–2 минут.`
+        : msg;
     }
   });
 }
