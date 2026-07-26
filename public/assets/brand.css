@@ -229,13 +229,18 @@ button.button.primary:hover,
   transition: padding-left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-body.gs-nav-collapsed .topbar {
-  padding-left: 68px !important;
+body.gs-nav-collapsed .topbar,
+body.gs-nav-collapsed.gs-nav-ready .topbar {
+  padding-left: 72px !important;
 }
 
 /* When rail is open, keep topbar clear of fixed rail edge */
 body.gs-nav-ready:not(.gs-nav-collapsed) .topbar {
   padding-left: 20px !important;
+}
+
+body.gs-nav-collapsed .gs-nav-reopen {
+  z-index: 70 !important;
 }
 
 .crumb {
