@@ -95,13 +95,20 @@ h1, h2, h3,
 .page-heading {
   margin-bottom: 36px !important;
   align-items: flex-end !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
 }
 
 .page-heading h1,
 .page-heading > div > h1 {
   font-size: clamp(32px, 3.6vw, 48px) !important;
   line-height: 0.95 !important;
-  max-width: 14ch;
+  max-width: none !important;
+}
+
+.page-heading > div {
+  min-width: 0 !important;
+  flex: 1 1 280px !important;
 }
 
 .page-heading p,
@@ -109,19 +116,33 @@ h1, h2, h3,
   color: var(--gs-muted) !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
-  max-width: 48ch;
+  max-width: min(62ch, 100%) !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
 }
 
-.eyebrow {
+.eyebrow,
+.form-modal .eyebrow,
+.modal-title .eyebrow {
   color: #050508 !important;
-  background: var(--gs-lime);
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 8px;
+  background: var(--gs-lime) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
   letter-spacing: 0.1em !important;
   font-size: 10px !important;
   font-weight: 800 !important;
-  box-shadow: 0 0 20px var(--gs-lime-glow);
+  line-height: 1.2 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  max-width: max-content !important;
+  box-shadow: 0 0 14px rgba(205, 251, 5, 0.22) !important;
+  transform: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
 }
 
 /* Industrial mono for money / metrics */
@@ -205,10 +226,30 @@ button.button.primary:hover,
   backdrop-filter: blur(22px) saturate(1.4) !important;
   border-bottom: 1px solid var(--gs-glass-border) !important;
   color: var(--gs-text) !important;
+  transition: padding-left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.crumb { color: var(--gs-muted) !important; font-size: 12px !important; }
+body.gs-nav-collapsed .topbar {
+  padding-left: 68px !important;
+}
+
+/* When rail is open, keep topbar clear of fixed rail edge */
+body.gs-nav-ready:not(.gs-nav-collapsed) .topbar {
+  padding-left: 20px !important;
+}
+
+.crumb {
+  color: var(--gs-muted) !important;
+  font-size: 12px !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
 .crumb strong { color: var(--gs-text) !important; }
+.crumb > span {
+  white-space: nowrap !important;
+}
 
 /* Bento / glass tiles */
 .panel,
@@ -293,7 +334,7 @@ article.panel:hover,
   width: min(660px, calc(100vw - 24px)) !important;
   max-height: min(92vh, 900px) !important;
   overflow: auto !important;
-  background: rgba(14, 14, 20, 0.82) !important;
+  background: rgba(14, 14, 20, 0.94) !important;
   color: var(--gs-text) !important;
   border: 1px solid var(--gs-glass-border) !important;
   border-radius: 24px !important;
@@ -308,20 +349,76 @@ article.panel:hover,
 
 .form-modal .modal-title,
 .form-modal > header,
+.form-modal > div.modal-title,
 .form-modal > div:first-child {
-  padding: 20px 22px 14px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 18px 22px 14px !important;
   border-bottom: 1px solid var(--gs-glass-border) !important;
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: rgba(12, 12, 18, 0.98) !important;
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 5;
+  isolation: isolate;
+  overflow: hidden !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.form-modal .modal-title > div,
+.form-modal > div.modal-title > div:first-child {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.form-modal .modal-title h2,
+.form-modal .modal-title > div > h2 {
+  margin: 0 !important;
+  font-size: 22px !important;
+  line-height: 1.2 !important;
+  max-width: none !important;
+  letter-spacing: -0.03em !important;
+  position: relative !important;
+  z-index: 1 !important;
+  background: transparent !important;
+}
+
+.form-modal .modal-title p,
+.form-modal .modal-title > div > p {
+  margin: 0 !important;
+  color: var(--gs-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  max-width: 52ch !important;
+  white-space: normal !important;
+}
+
+.form-modal .modal-title > button,
+.form-modal > div.modal-title > button {
+  flex: 0 0 auto !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--gs-glass-border) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--gs-muted) !important;
+  place-items: center !important;
+  display: grid !important;
 }
 
 .form-grid {
   display: grid !important;
   grid-template-columns: 1fr !important;
   gap: 12px !important;
-  padding: 16px 22px 8px !important;
+  padding: 16px 22px 96px !important;
 }
 
 @media (min-width: 720px) {
@@ -392,7 +489,7 @@ textarea,
 .form-grid input,
 .form-grid select,
 .form-grid textarea {
-  background: rgba(0, 0, 0, 0.35) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
   color: var(--gs-text) !important;
   border: 1px solid var(--gs-glass-border) !important;
   border-radius: 14px !important;
@@ -400,6 +497,34 @@ textarea,
   font-size: 14px !important;
   padding: 11px 13px !important;
   backdrop-filter: blur(8px);
+  color-scheme: dark;
+}
+
+select,
+.form-modal select,
+.form-grid select,
+.toolbar select,
+.activity-filters select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #cdfb05 50%),
+    linear-gradient(135deg, #cdfb05 50%, transparent 50%),
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)) !important;
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px),
+    0 0 !important;
+  background-size: 6px 6px, 6px 6px, 100% 100% !important;
+  background-repeat: no-repeat !important;
+  padding-right: 36px !important;
+  cursor: pointer;
+}
+
+select option,
+.form-modal select option {
+  background: #121218 !important;
+  color: #f4f4f1 !important;
 }
 
 .form-modal textarea { min-height: 92px !important; }
@@ -862,3 +987,46 @@ tbody tr:hover {
   min-height: 40px !important;
   padding: 0 !important;
 }
+
+/* —— UI bugfix pass (modals / truncate / selects) —— */
+.list-meta,
+.table-meta,
+.leads-meta,
+.panel .muted,
+.filter-row,
+.toolbar .count,
+.page-heading + .table-search,
+.table-toolbar,
+.section-meta {
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: unset !important;
+  max-width: none !important;
+}
+
+.table-search {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 420px !important;
+}
+
+.form-modal .form-actions,
+.form-modal footer,
+.form-modal .modal-actions {
+  z-index: 6 !important;
+  background: rgba(10, 10, 14, 0.96) !important;
+  backdrop-filter: none !important;
+}
+
+/* Native select popup: force dark scheme on Windows/Chrome */
+html {
+  color-scheme: dark;
+}
+
+body,
+.os-shell,
+.workspace,
+.form-modal {
+  color-scheme: dark;
+}
+
