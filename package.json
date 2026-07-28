@@ -14,9 +14,12 @@
     "qa:stress": "node scripts/qa-stress-15x5.js",
     "qa:wave2": "node scripts/qa-stress-wave2.js",
     "qa:all": "node scripts/qa-acceptance.js && node scripts/qa-stress-15x5.js && node scripts/qa-stress-wave2.js",
+    "test": "node --test test/**/*.test.js",
+    "test:margin": "node --test test/money.test.js",
     "patch:roles": "node scripts/patch-roles-ui.js",
     "patch:finance": "node scripts/patch-fixed-share.js",
-    "patch:funnel": "node scripts/patch-funnel-status.js"
+    "patch:funnel": "node scripts/patch-funnel-status.js",
+    "patch:margin": "node scripts/patch-margin-precision.js"
   },
   "engines": {
     "node": ">=18"
