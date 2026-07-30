@@ -166,6 +166,12 @@ const scenarios = [
       const os = await req('/api/os', { cookie });
       const project = (os.data.projects || [])[0];
       assert(project, 'need project');
+      const invalidPay = await req('/api/os', {
+        method: 'POST',
+        cookie,
+        body: { action: 'payment.create', amount: 1 },
+      });
+      assert(invalidPay.status === 400, `payment without project ${invalidPay.status}`);
       const pay = await req('/api/os', {
         method: 'POST',
         cookie,
@@ -194,12 +200,19 @@ const scenarios = [
       const { cookie } = await login('denis@getsite.uz', 'denis123');
       const os = await req('/api/os', { cookie });
       const project = (os.data.projects || [])[0];
+      assert(project, 'need project');
+      const invalidExpense = await req('/api/os', {
+        method: 'POST',
+        cookie,
+        body: { action: 'expense.create', amount: 1 },
+      });
+      assert(invalidExpense.status === 400, `expense without project ${invalidExpense.status}`);
       const exp = await req('/api/os', {
         method: 'POST',
         cookie,
         body: {
           action: 'expense.create',
-          projectId: project?.id,
+          projectId: project.id,
           amount: 50000 + i * 500,
           category: 'подряд',
           note: `qa-exp-${i}`,

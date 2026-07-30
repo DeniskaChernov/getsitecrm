@@ -31,6 +31,14 @@
 - Mobile close controls 44×44; admin modal использует тот же bottom-sheet contract.
 - QA: unit 32/32, UI 75/75; дополнительно проверяет labels/min-width таблиц и bottom-sheet geometry/Escape. Cache `20260730f`.
 
+## 2026-07-30 Knowledge base
+- Добавлены `README.md`, `docs/ROLES.md`, `docs/BUSINESS_FLOWS.md`, `docs/RUNBOOK.md`.
+- README: local setup, architecture, QA, security, doc map.
+- dotenv подключён в `server.js`; `.env.example` теперь реально загружается локально.
+- DEPLOY ссылается на roles/runbook; env catalog дополнен `DATABASE_CA`.
+- payment/expense create: projectId обязателен; удалён fallback на первый проект, wave2 75/75.
+- docs reliability review: 94/100, расхождений setup/deploy/QA/runbook не найдено.
+
 ## 2026-07-30 Railway AUTH_* переменные
 - Сервис `getsitecrm` (проект getsite.uz): AUTH_DENIS/NIKITA/MANAGER/DESIGNER_{EMAIL,PASSWORD}.
 - Пароли сейчас `__SET_ME__` (плейсхолдер) — юзер сам вписывает секреты в Railway Variables.

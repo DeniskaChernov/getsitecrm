@@ -36,6 +36,7 @@ module.exports = {
     DATABASE_PRIVATE_URL: '',
     POSTGRES_URL: '',
     DATABASE_SSL: '',
+    DATABASE_CA: '',
     NODE_ENV: 'production',
     AUTH_DENIS_EMAIL: 'denis@getsite.uz',
     AUTH_DENIS_PASSWORD: '__SET_ME__',

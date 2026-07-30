@@ -16,4 +16,7 @@
 6. В production подсказки демо-паролей на экране входа **скрыты**.
 7. Никогда не задавайте `ALLOW_DEV_BOOTSTRAP=1` в production.
 
-Локально: скопируйте `.env.example` → `.env`, задайте `SESSION_SECRET`, при необходимости `DATABASE_URL`.
+Локальный bootstrap и тестовые аккаунты описаны в [README](README.md).
+
+После деплоя и при инцидентах следуйте [эксплуатационному runbook](docs/RUNBOOK.md).
+Модель доступа описана в [документе ролей](docs/ROLES.md).
