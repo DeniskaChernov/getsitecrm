@@ -3,6 +3,16 @@
 ## Policy
 - После любых правок: commit + push сразу (user 2026-07-30).
 
+## 2026-07-30 Security hardening P0/P1
+- Production bootstrap: seed users удалены; fallback-пароли только при явном `ALLOW_DEV_BOOTSTRAP=1` вне prod. `AUTH_*_PASSWORD`: min 12, `__SET_ME__` игнорируется; пустая БД без явных пользователей fail-fast.
+- Session: `sessionVersion` в signed cookie + user; password reset/deactivate/logout инкрементируют версию → старые cookies недействительны после restart/scale.
+- Login limit: Railway `trust proxy=1`, `req.ip`, двойной лимит IP/email; в Postgres таблица `login_rate_limits`, ключи SHA-256.
+- HTTP: Helmet (CSP self, frame deny, no-referrer, HSTS prod), same-origin/Sec-Fetch-Site проверка POST API.
+- XSS: displayName валидируется; user-data экранируется в nav; placeholder задаётся DOM API. `user.capacity` больше не отдаёт passwordHash.
+- DB: Railway private URL без TLS; публичный production PostgreSQL только с `DATABASE_CA` и `rejectUnauthorized:true`.
+- Шрифты Google CDN → self-hosted Fontsource (CSP не ослаблен).
+- QA: 32/32 unit/security, acceptance OK, stress 75/75 + wave2 75/75, UI 75/75. Cache `20260730d`.
+
 ## 2026-07-30 Railway AUTH_* переменные
 - Сервис `getsitecrm` (проект getsite.uz): AUTH_DENIS/NIKITA/MANAGER/DESIGNER_{EMAIL,PASSWORD}.
 - Пароли сейчас `__SET_ME__` (плейсхолдер) — юзер сам вписывает секреты в Railway Variables.

@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require('express');
+const helmet = require('helmet');
 const { ensureDb, readDb, writeDb, usingPostgres, id, str, pingDb } = require('./lib/store');
 const { getState, handleAction } = require('./lib/actions');
 const { getDatabaseUrl, closePool } = require('./lib/db');
@@ -7,7 +8,6 @@ const {
   getSessionUser,
   setSessionCookie,
   clearSessionCookie,
-  revokeSessionFromRequest,
   createSessionToken,
   verifyPassword,
   scryptHash,
@@ -16,8 +16,16 @@ const {
   canAction,
   defaultUsers,
   normalizeRole,
+  validateDisplayName,
+  validatePassword,
   ROLES,
 } = require('./lib/auth');
+const {
+  ensureLoginRateLimitSchema,
+  checkLoginRate,
+  recordLoginFailure,
+  clearLoginFailures,
+} = require('./lib/login-rate-limit');
 const { requiredInProduction, recommendedInProduction } = require('./config/env-vars');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -40,61 +48,45 @@ function assertProductionEnv() {
   }
 }
 
-/** In-memory rate limit: only failed logins count; success clears the bucket */
-const loginAttempts = new Map();
-const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const LOGIN_MAX_FAILS = 12;
-
-function clientIp(req) {
-  const xf = String(req.headers['x-forwarded-for'] || '')
-    .split(',')[0]
-    .trim();
-  return xf || req.socket?.remoteAddress || 'unknown';
-}
-
-function loginRateKey(req) {
-  return `${clientIp(req)}:${str(req.body?.email).trim().toLowerCase()}`;
-}
-
-function checkLoginRate(req) {
-  const key = loginRateKey(req);
-  const now = Date.now();
-  const entry = loginAttempts.get(key);
-  if (!entry || now - entry.start > LOGIN_WINDOW_MS) {
-    return { ok: true };
-  }
-  if (entry.count >= LOGIN_MAX_FAILS) {
-    const retryAfter = Math.ceil((LOGIN_WINDOW_MS - (now - entry.start)) / 1000);
-    return { ok: false, retryAfter };
-  }
-  return { ok: true };
-}
-
-function recordLoginFailure(req) {
-  const key = loginRateKey(req);
-  const now = Date.now();
-  let entry = loginAttempts.get(key);
-  if (!entry || now - entry.start > LOGIN_WINDOW_MS) {
-    entry = { start: now, count: 0 };
-  }
-  entry.count += 1;
-  loginAttempts.set(key, entry);
-}
-
-function clearLoginFailures(req) {
-  loginAttempts.delete(loginRateKey(req));
-}
-
 async function resolveUser(req) {
   const session = getSessionUser(req);
   if (!session?.email) return null;
   const data = await readDb();
-  return (data.users || []).find((u) => u.email === session.email && u.active !== false) || null;
+  const user = (data.users || []).find((u) => u.email === session.email && u.active !== false);
+  if (!user) return null;
+  if ((Number(user.sessionVersion) || 0) !== (Number(session.sessionVersion) || 0)) return null;
+  return user;
+}
+
+function enforceSameOrigin(req, res, next) {
+  if (!req.path.startsWith('/api/') || !['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    return next();
+  }
+  const fetchSite = String(req.headers['sec-fetch-site'] || '').toLowerCase();
+  if (fetchSite === 'cross-site') {
+    return res.status(403).json({ error: 'Запрос с другого сайта запрещён' });
+  }
+  const origin = String(req.headers.origin || '').trim();
+  if (!origin) return next();
+  try {
+    const originHost = new URL(origin).host.toLowerCase();
+    const requestHost = String(req.headers['x-forwarded-host'] || req.headers.host || '')
+      .split(',')[0]
+      .trim()
+      .toLowerCase();
+    if (!requestHost || originHost !== requestHost) {
+      return res.status(403).json({ error: 'Источник запроса не разрешён' });
+    }
+  } catch {
+    return res.status(403).json({ error: 'Некорректный Origin' });
+  }
+  next();
 }
 
 async function main() {
   assertProductionEnv();
   const boot = await ensureDb();
+  await ensureLoginRateLimitSchema();
   const data = await readDb();
   const defaults = defaultUsers();
   let changed = false;
@@ -110,6 +102,7 @@ async function main() {
       position: u.position,
       weeklyCapacity: u.weeklyCapacity,
       active: u.active,
+      sessionVersion: Number(u.sessionVersion) || 0,
     };
     // Сначала ищем по id (стабильный ключ), затем по email
     let existing = (data.users || []).find((x) => x.id === clean.id);
@@ -131,11 +124,17 @@ async function main() {
       existing.displayName = existing.displayName || clean.displayName;
       existing.position = existing.position || clean.position;
       changed = true;
-    } else if (passwordFromEnv) {
-      // AUTH_*_PASSWORD задан в Railway — принудительно обновляем хеш при старте
+    } else if (passwordFromEnv && !verifyPassword(u._passwordValue, existing.passwordHash)) {
+      // Секрет в Railway изменён: обновляем хеш и инвалидируем старые сессии
       existing.passwordHash = clean.passwordHash;
+      existing.sessionVersion = (Number(existing.sessionVersion) || 0) + 1;
       changed = true;
     }
+  }
+  if (!(data.users || []).length) {
+    throw new Error(
+      'Нет пользователей. Задайте AUTH_*_EMAIL и сильный AUTH_*_PASSWORD (не менее 12 символов).'
+    );
   }
   if (changed) await writeDb(data);
 
@@ -144,7 +143,35 @@ async function main() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
+  // Railway завершает TLS на одном доверенном reverse proxy.
+  app.set('trust proxy', 1);
+  app.disable('x-powered-by');
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          fontSrc: ["'self'", 'data:'],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          frameAncestors: ["'none'"],
+          formAction: ["'self'"],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+      frameguard: { action: 'deny' },
+      referrerPolicy: { policy: 'no-referrer' },
+      strictTransportSecurity: IS_PROD
+        ? { maxAge: 31536000, includeSubDomains: true }
+        : false,
+    })
+  );
   app.use(express.json({ limit: '2mb' }));
+  app.use(enforceSameOrigin);
 
   app.get('/api/health', async (_req, res) => {
     try {
@@ -157,7 +184,8 @@ async function main() {
         time: new Date().toISOString(),
       });
     } catch (err) {
-      res.status(500).json({ ok: false, error: err.message || 'health check failed' });
+      console.error('Health check failed:', err);
+      res.status(500).json({ ok: false, error: 'health check failed' });
     }
   });
 
@@ -186,7 +214,7 @@ async function main() {
 
   app.post('/api/auth/login', async (req, res) => {
     try {
-      const rate = checkLoginRate(req);
+      const rate = await checkLoginRate(req);
       if (!rate.ok) {
         res.setHeader('Retry-After', String(rate.retryAfter || 60));
         return res.status(429).json({
@@ -202,13 +230,13 @@ async function main() {
       const db = await readDb();
       const user = (db.users || []).find((u) => u.email.toLowerCase() === email);
       if (!user || !verifyPassword(password, user.passwordHash)) {
-        recordLoginFailure(req);
+        await recordLoginFailure(req);
         return res.status(401).json({ error: 'Неверный email или пароль' });
       }
       if (user.active === false) {
         return res.status(403).json({ error: 'Пользователь отключён' });
       }
-      clearLoginFailures(req);
+      await clearLoginFailures(req);
       setSessionCookie(res, createSessionToken(user), req);
       res.json({ ok: true, user: publicUser(user) });
     } catch (err) {
@@ -224,16 +252,15 @@ async function main() {
         return res.status(403).json({ error: 'Создавать пользователей может только основатель' });
       }
       const email = str(req.body?.email).trim().toLowerCase();
-      const password = str(req.body?.password);
-      const displayName = str(req.body?.displayName || req.body?.fullName).trim();
+      const passwordCheck = validatePassword(req.body?.password);
+      const nameCheck = validateDisplayName(req.body?.displayName || req.body?.fullName);
       const systemRole = normalizeRole(req.body?.systemRole || 'sales_manager') || 'sales_manager';
 
-      if (!email || !password || !displayName) {
+      if (!email || !req.body?.password || !(req.body?.displayName || req.body?.fullName)) {
         return res.status(400).json({ error: 'Нужны имя, email и пароль' });
       }
-      if (password.length < 6) {
-        return res.status(400).json({ error: 'Пароль не короче 6 символов' });
-      }
+      if (!passwordCheck.ok) return res.status(400).json({ error: passwordCheck.error });
+      if (!nameCheck.ok) return res.status(400).json({ error: nameCheck.error });
       if (!ROLES[systemRole]) {
         return res.status(400).json({ error: 'Неизвестная роль' });
       }
@@ -246,12 +273,13 @@ async function main() {
       const user = {
         id: id(),
         email,
-        displayName,
-        passwordHash: scryptHash(password),
+        displayName: nameCheck.value,
+        passwordHash: scryptHash(passwordCheck.value),
         systemRole,
         position: ROLES[systemRole]?.label || 'Пользователь',
         weeklyCapacity: 40,
         active: true,
+        sessionVersion: 0,
         createdAt: new Date().toISOString(),
       };
       db.users = [user, ...(db.users || [])];
@@ -268,29 +296,29 @@ async function main() {
       if (!actor) return res.status(401).json({ error: 'Требуется вход' });
 
       const targetEmail = str(req.body?.email || actor.email).trim().toLowerCase();
-      const newPassword = str(req.body?.password || req.body?.newPassword);
+      const passwordCheck = validatePassword(req.body?.password || req.body?.newPassword);
       const currentPassword = str(req.body?.currentPassword);
 
-      if (!newPassword || newPassword.length < 6) {
-        return res.status(400).json({ error: 'Новый пароль не короче 6 символов' });
-      }
+      if (!passwordCheck.ok) return res.status(400).json({ error: passwordCheck.error });
 
       const isSelf = targetEmail === actor.email.toLowerCase();
       if (!isSelf && actor.systemRole !== 'founder') {
         return res.status(403).json({ error: 'Сброс чужого пароля доступен только основателю' });
       }
-      if (isSelf && currentPassword && !verifyPassword(currentPassword, actor.passwordHash)) {
-        return res.status(401).json({ error: 'Текущий пароль неверный' });
-      }
-      if (isSelf && !currentPassword && actor.systemRole !== 'founder') {
+      if (isSelf && !currentPassword) {
         return res.status(400).json({ error: 'Укажите текущий пароль' });
+      }
+      if (isSelf && !verifyPassword(currentPassword, actor.passwordHash)) {
+        return res.status(401).json({ error: 'Текущий пароль неверный' });
       }
 
       const db = await readDb();
       const user = (db.users || []).find((u) => u.email.toLowerCase() === targetEmail);
       if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
-      user.passwordHash = scryptHash(newPassword);
+      user.passwordHash = scryptHash(passwordCheck.value);
+      user.sessionVersion = (Number(user.sessionVersion) || 0) + 1;
       await writeDb(db);
+      if (isSelf) clearSessionCookie(res);
       res.json({ ok: true });
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -312,6 +340,7 @@ async function main() {
       const user = (db.users || []).find((u) => u.email.toLowerCase() === email);
       if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
       user.active = false;
+      user.sessionVersion = (Number(user.sessionVersion) || 0) + 1;
       await writeDb(db);
       res.json({ ok: true, user: publicUser(user) });
     } catch (err) {
@@ -319,10 +348,23 @@ async function main() {
     }
   });
 
-  app.post('/api/auth/logout', (req, res) => {
-    revokeSessionFromRequest(req);
-    clearSessionCookie(res);
-    res.json({ ok: true });
+  app.post('/api/auth/logout', async (req, res) => {
+    try {
+      const session = getSessionUser(req);
+      if (session?.email) {
+        const db = await readDb();
+        const user = (db.users || []).find((u) => u.email === session.email);
+        if (user) {
+          user.sessionVersion = (Number(user.sessionVersion) || 0) + 1;
+          await writeDb(db);
+        }
+      }
+      clearSessionCookie(res);
+      res.json({ ok: true });
+    } catch (err) {
+      clearSessionCookie(res);
+      res.status(500).json({ error: 'Не удалось завершить сессию' });
+    }
   });
 
   app.get('/api/os', async (req, res) => {
@@ -349,10 +391,21 @@ async function main() {
 
       if (user.systemRole === 'designer') {
         const db = await readDb();
+        const projectScopedActions = new Set([
+          'task.create',
+          'task.update',
+          'task.delete',
+          'project.actual',
+          'handoff.save',
+          'project.update',
+        ]);
         const projectId =
           req.body.projectId ||
           db.projects.find((p) => p.id === req.body.id)?.id ||
           db.projectTasks.find((t) => t.id === req.body.id)?.projectId;
+        if (projectScopedActions.has(action) && !projectId) {
+          return res.status(403).json({ error: 'Не удалось определить доступный проект' });
+        }
         if (projectId) {
           const project = db.projects.find((p) => p.id === projectId);
           const { isResponsibleForProject } = require('./lib/auth');
@@ -373,6 +426,23 @@ async function main() {
   app.get('/favicon.svg', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'favicon.svg'));
   });
+
+  const fontCache = { maxAge: IS_PROD ? '30d' : 0, immutable: IS_PROD };
+  app.use(
+    '/assets/fonts/manrope',
+    express.static(path.join(__dirname, 'node_modules', '@fontsource-variable', 'manrope'), fontCache)
+  );
+  app.use(
+    '/assets/fonts/bricolage',
+    express.static(
+      path.join(__dirname, 'node_modules', '@fontsource-variable', 'bricolage-grotesque'),
+      fontCache
+    )
+  );
+  app.use(
+    '/assets/fonts/ibm-plex-mono',
+    express.static(path.join(__dirname, 'node_modules', '@fontsource', 'ibm-plex-mono'), fontCache)
+  );
 
   app.use('/assets', express.static(path.join(__dirname, 'public', 'assets'), {
     maxAge: IS_PROD ? '7d' : 0,

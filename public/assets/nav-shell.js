@@ -21,6 +21,15 @@ const SECTION_TITLES = [
   'Готовность системы',
 ];
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 const NAV_TREE = [
   {
     id: 'home',
@@ -301,10 +310,10 @@ function buildNav(user, rolesFromApi) {
     </div>
     <div class="gs-footer">
       <div class="gs-user">
-        <div class="gs-avatar">${initials}</div>
+        <div class="gs-avatar">${escapeHtml(initials)}</div>
         <div>
-          <strong>${user.displayName || 'Пользователь'}</strong>
-          <span>${roleLabel}</span>
+          <strong>${escapeHtml(user.displayName || 'Пользователь')}</strong>
+          <span>${escapeHtml(roleLabel)}</span>
         </div>
       </div>
       <div class="gs-footer-actions">
@@ -597,7 +606,7 @@ export function mountNavShell(user, rolesFromApi) {
   if (!document.querySelector('link[href*="nav-shell.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/nav-shell.css?v=20260730c';
+    link.href = '/assets/nav-shell.css?v=20260730d';
     document.head.appendChild(link);
   }
   buildNav(user, rolesFromApi);

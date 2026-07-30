@@ -1146,48 +1146,7 @@
       "hasMore": false
     }
   },
-  "users": [
-    {
-      "id": "u-denis",
-      "email": "denis@getsite.uz",
-      "displayName": "Денис",
-      "passwordHash": "94267d7853c2512ed3f06785d962c9cb:5c722b20b39003f82364a47d4c1915df3a337c5ef7250f1dab6c329641e8e592968bd30ab60e9d48edd2738e842cce7472cff5b311288c49a26ffaff78a6fca0",
-      "systemRole": "founder",
-      "position": "Основатель",
-      "weeklyCapacity": 40,
-      "active": true
-    },
-    {
-      "id": "u-nikita",
-      "email": "nikita@getsite.uz",
-      "displayName": "Никита",
-      "passwordHash": "d5ed9b1288f77d04f7be12d6f0cc1822:5682f08bd0a1e537c2d5c826facf5c709f51abd7ce59e37b46cf33299b3a5f1bee19d8f0c8427adf970a13b58e625156c51136c248dcce6f1a846d2dfc779004",
-      "systemRole": "founder",
-      "position": "Учредитель",
-      "weeklyCapacity": 40,
-      "active": true
-    },
-    {
-      "id": "u-manager",
-      "email": "manager@getsite.uz",
-      "displayName": "Менеджер продаж",
-      "passwordHash": "59cf9d36fdb31d5c881593a3b3a68fec:4018d07e727c74069bf4c28f7031756b0f01bd4490174e99ea1eb491f3fed1c3148a2049098219f33f6540ed7b3cfbc334e20d6706399fedae8004671d70f824",
-      "systemRole": "sales_manager",
-      "position": "Менеджер продаж",
-      "weeklyCapacity": 40,
-      "active": true
-    },
-    {
-      "id": "u-designer",
-      "email": "designer@getsite.uz",
-      "displayName": "Дизайнер",
-      "passwordHash": "8d650869bff6e5de569af36d4843e7c5:45cbc2321a4df5581188ace193ac2731c95378d6ef2773c8abf63a407b695c450ef7fc0adbaf44824538a7e92c16acdcd3835dce8500b9475fde88ebb231c743",
-      "systemRole": "designer",
-      "position": "Дизайнер",
-      "weeklyCapacity": 40,
-      "active": true
-    }
-  ],
+  "users": [],
   "settings": {
     "hourlyRate": 50000,
     "taxRate": 12,

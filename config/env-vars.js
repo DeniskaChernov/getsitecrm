@@ -5,14 +5,14 @@
  */
 module.exports = {
   /** Fail-fast при старте в production */
-  requiredInProduction: ['SESSION_SECRET'],
-  /** Рекомендуются для Railway (без DATABASE_URL — файловое хранилище) */
-  recommendedInProduction: ['DATABASE_URL'],
+  requiredInProduction: ['SESSION_SECRET', 'DATABASE_URL'],
+  recommendedInProduction: [],
   optional: [
     'DATABASE_URL',
     'DATABASE_PRIVATE_URL',
     'POSTGRES_URL',
     'DATABASE_SSL',
+    'DATABASE_CA',
     'PORT',
     'NODE_ENV',
     'AUTH_DENIS_EMAIL',
@@ -23,6 +23,7 @@ module.exports = {
     'AUTH_MANAGER_PASSWORD',
     'AUTH_DESIGNER_EMAIL',
     'AUTH_DESIGNER_PASSWORD',
+    'ALLOW_DEV_BOOTSTRAP',
   ],
   /**
    * Шаблон для Railway → Variables.

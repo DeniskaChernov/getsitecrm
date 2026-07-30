@@ -1,7 +1,7 @@
 import { r as jsxFactory, t as reactDomFactory } from './framework-CXnKph_e.js';
 import App from './os-client-DeMZwioN.js';
-import { mountNavShell } from './nav-shell.js?v=20260730c';
-import './ui-fix.js?v=20260730c';
+import { mountNavShell } from './nav-shell.js?v=20260730d';
+import './ui-fix.js?v=20260730d';
 
 const jsxRuntime = jsxFactory();
 const ReactDOM = reactDomFactory();
@@ -122,7 +122,7 @@ function mountUserAdmin(user) {
         <form id="gs-user-create">
           <label><span>Имя</span><input name="displayName" required /></label>
           <label><span>Email</span><input name="email" type="email" required /></label>
-          <label><span>Пароль</span><input name="password" type="password" minlength="6" required /></label>
+          <label><span>Пароль</span><input name="password" type="password" minlength="12" required /></label>
           <label><span>Роль</span>
             <select name="systemRole">
               <option value="sales_manager">Менеджер</option>
@@ -135,8 +135,8 @@ function mountUserAdmin(user) {
         </form>
         <hr />
         <form id="gs-user-password">
-          <label><span>Email пользователя</span><input name="email" type="email" required placeholder="${user.email}" /></label>
-          <label><span>Новый пароль</span><input name="password" type="password" minlength="6" required /></label>
+          <label><span>Email пользователя</span><input name="email" type="email" required /></label>
+          <label><span>Новый пароль</span><input name="password" type="password" minlength="12" required /></label>
           <button class="button" type="submit">Сбросить пароль</button>
           <div class="auth-error" id="gs-user-password-err"></div>
         </form>
@@ -149,6 +149,7 @@ function mountUserAdmin(user) {
     </div>
   `;
   document.body.appendChild(panel);
+  panel.querySelector('#gs-user-password input[name="email"]').placeholder = String(user.email || '');
 
   const modal = document.getElementById('gs-user-admin-modal');
   document.getElementById('gs-user-admin-open').onclick = () => {

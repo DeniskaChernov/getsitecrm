@@ -2,7 +2,11 @@
  * getsite* OS theme: Glass + Swiss Editorial + Neon (dosed) + Bento + Soft + Mono metrics
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('/assets/fonts/manrope/index.css');
+@import url('/assets/fonts/bricolage/index.css');
+@import url('/assets/fonts/ibm-plex-mono/400.css');
+@import url('/assets/fonts/ibm-plex-mono/500.css');
+@import url('/assets/fonts/ibm-plex-mono/600.css');
 
 :root {
   --gs-lime: #cdfb05;
@@ -21,8 +25,8 @@
   --gs-radius: 16px;
   --gs-radius-lg: 22px;
   --gs-radius-pill: 999px;
-  --font-display: 'Bricolage Grotesque', sans-serif;
-  --font-ui: 'Manrope', system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', sans-serif;
+  --font-ui: 'Manrope Variable', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   --bg: var(--gs-void);

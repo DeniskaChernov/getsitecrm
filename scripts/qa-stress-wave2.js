@@ -279,20 +279,30 @@ const scenarios = [
         body: {
           action: 'user.create',
           email,
-          password: 'qa123456',
+          password: 'qa-Create-123456',
           displayName: `QA User ${i}`,
           systemRole: 'member',
         },
       });
       assert(created.status === 200 && created.data.user?.email === email, `user.create ${created.status} ${created.data.error}`);
+      const oldSession = await req('/api/auth/login', {
+        method: 'POST',
+        body: { email, password: 'qa-Create-123456' },
+      });
+      assert(oldSession.status === 200 && oldSession.cookie, `initial user login ${oldSession.status}`);
       const pwd = await req('/api/os', {
         method: 'POST',
         cookie,
-        body: { action: 'user.password', email, password: 'qa654321' },
+        body: { action: 'user.password', email, password: 'qa-Changed-654321' },
       });
       assert(pwd.status === 200, `password ${pwd.status} ${pwd.data.error}`);
-      dropSession(email, 'qa654321');
-      const loginNew = await req('/api/auth/login', { method: 'POST', body: { email, password: 'qa654321' } });
+      const revoked = await req('/api/os', { cookie: oldSession.cookie });
+      assert(revoked.status === 401, `old session must be revoked, got ${revoked.status}`);
+      dropSession(email, 'qa-Changed-654321');
+      const loginNew = await req('/api/auth/login', {
+        method: 'POST',
+        body: { email, password: 'qa-Changed-654321' },
+      });
       assert(loginNew.status === 200, `new user login ${loginNew.status}`);
       const deact = await req('/api/os', {
         method: 'POST',
@@ -300,7 +310,10 @@ const scenarios = [
         body: { action: 'user.deactivate', email },
       });
       assert(deact.status === 200, `deactivate ${deact.status}`);
-      const blocked = await req('/api/auth/login', { method: 'POST', body: { email, password: 'qa654321' } });
+      const blocked = await req('/api/auth/login', {
+        method: 'POST',
+        body: { email, password: 'qa-Changed-654321' },
+      });
       assert(blocked.status === 403 || blocked.status === 401, `deactivated login ${blocked.status}`);
       const reactivate = await req('/api/os', {
         method: 'POST',
