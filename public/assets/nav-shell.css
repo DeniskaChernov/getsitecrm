@@ -9,6 +9,13 @@
   --gs-nav-accent: #cdfb05;
   --gs-nav-hover: rgba(255, 255, 255, 0.05);
   --gs-nav-active: rgba(205, 251, 5, 0.12);
+  --gs-z-bottom-tabs: 40;
+  --gs-z-reopen: 45;
+  --gs-z-create-menu: 50;
+  --gs-z-toast: 90;
+  --gs-z-modal: 100;
+  --gs-z-nav-overlay: 110;
+  --gs-z-nav: 120;
 }
 
 body.gs-nav-ready .os-shell {
@@ -195,7 +202,7 @@ body.gs-nav-collapsed .gs-nav-reopen {
   position: fixed;
   left: 12px;
   top: 14px;
-  z-index: 60;
+  z-index: var(--gs-z-reopen);
   width: 44px;
   height: 44px;
   padding: 0;
@@ -228,7 +235,7 @@ body.gs-nav-collapsed .gs-nav-reopen {
   border-radius: 16px;
   padding: 8px;
   display: none;
-  z-index: 50;
+  z-index: var(--gs-z-create-menu);
   backdrop-filter: blur(22px);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(205, 251, 5, 0.08);
   animation: gs-menu-in 0.18s ease both;
@@ -409,7 +416,7 @@ body.gs-nav-collapsed .gs-nav-reopen {
   #gs-nav {
     transform: translateX(-105%);
     width: min(300px, 88vw);
-    z-index: 120;
+    z-index: var(--gs-z-nav);
     opacity: 1;
     pointer-events: auto;
   }
@@ -436,7 +443,7 @@ body.gs-nav-collapsed .gs-nav-reopen {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.55);
-    z-index: 110;
+    z-index: var(--gs-z-nav-overlay);
     backdrop-filter: blur(4px);
   }
   body.gs-nav-open #gs-nav-overlay { display: block; }
@@ -451,7 +458,7 @@ body.gs-nav-collapsed .gs-nav-reopen {
 .gs-user-admin-modal {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: var(--gs-z-modal);
   background: rgba(2, 2, 8, 0.55);
   backdrop-filter: blur(14px);
   display: grid;
@@ -515,6 +522,13 @@ body.gs-nav-collapsed .gs-nav-reopen {
 .gs-user-admin-card hr { margin: 14px 0; border: 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
 .gs-user-admin-card .button.danger { background: #b42318; color: #fff; }
 .gs-user-admin-card .auth-error { min-height: 1.2em; color: #ff6b66; font-size: 13px; margin-top: 6px; }
+
+@media (max-width: 900px) {
+  .gs-user-admin-modal {
+    place-items: end stretch;
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+  }
+}
 
 body.role-sales_manager .form-modal .form-section-title:nth-of-type(3),
 body.role-sales_manager .form-modal label:has(input[name='founderHours']),

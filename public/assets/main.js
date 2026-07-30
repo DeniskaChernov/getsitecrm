@@ -1,7 +1,7 @@
 import { r as jsxFactory, t as reactDomFactory } from './framework-CXnKph_e.js';
 import App from './os-client-DeMZwioN.js?v=20260730e';
-import { mountNavShell } from './nav-shell.js?v=20260730e';
-import './ui-fix.js?v=20260730e';
+import { mountNavShell } from './nav-shell.js?v=20260730f';
+import './ui-fix.js?v=20260730f';
 
 const jsxRuntime = jsxFactory();
 const ReactDOM = reactDomFactory();

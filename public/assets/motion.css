@@ -34,6 +34,17 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .gs-nav-reopen,
+  #gs-nav #gs-create-btn:hover .gs-plus {
+    animation: none !important;
+  }
+
+  #gs-nav .gs-item:hover,
+  tbody tr:hover {
+    transform: none !important;
   }
 }
 

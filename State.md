@@ -23,6 +23,14 @@
 - Patch: `scripts/patch-navigation-unify.js` idempotent, `npm run patch:navigation`.
 - QA: unit 32/32, UI 75/75; проверяет direct API, отсутствие React-sidebar/FAB и открытие Team modal. Cache `20260730e`.
 
+## 2026-07-30 UX/mobile contract
+- Modals: desktop glass только `>=901px`; mobile единый bottom-sheet (safe-area, max-height, radius, overscroll), не fullscreen.
+- Tables: `ui-fix.js` добавляет `data-label` из `thead`; `.table-panel table` на mobile → карточки без `min-width`/horizontal overflow.
+- Z-index: CSS vars для tabs/reopen/create/toast/modal/nav overlay/nav; admin modal=100, toast=90, tabs=40.
+- Motion: единый workspace entrance; reduced-motion отключает transitions/infinite/hover transforms + auth animation.
+- Mobile close controls 44×44; admin modal использует тот же bottom-sheet contract.
+- QA: unit 32/32, UI 75/75; дополнительно проверяет labels/min-width таблиц и bottom-sheet geometry/Escape. Cache `20260730f`.
+
 ## 2026-07-30 Railway AUTH_* переменные
 - Сервис `getsitecrm` (проект getsite.uz): AUTH_DENIS/NIKITA/MANAGER/DESIGNER_{EMAIL,PASSWORD}.
 - Пароли сейчас `__SET_ME__` (плейсхолдер) — юзер сам вписывает секреты в Railway Variables.

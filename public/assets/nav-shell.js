@@ -450,6 +450,8 @@ function buildNav(user, rolesFromApi) {
 
     const team = e.target.closest('#gs-nav-team');
     if (team) {
+      setNavOpen(false);
+      setCreateOpen(false);
       window.__gsOpenUserAdmin?.();
       return;
     }
@@ -596,7 +598,7 @@ export function mountNavShell(user, rolesFromApi) {
   if (!document.querySelector('link[href*="nav-shell.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/nav-shell.css?v=20260730e';
+    link.href = '/assets/nav-shell.css?v=20260730f';
     document.head.appendChild(link);
   }
   buildNav(user, rolesFromApi);

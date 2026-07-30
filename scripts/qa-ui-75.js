@@ -176,6 +176,25 @@ async function runNavigationBlock(browser, block, role, viewports) {
             await page.locator('#gs-user-admin-close').click();
           }
         }
+        if (vp.name === 'mobile' && ['Деньги', 'Прайс'].includes(section)) {
+          const tableCards = await page.evaluate(() => {
+            const table = document.querySelector('.table-panel table');
+            if (!table) return null;
+            const cells = [...table.querySelectorAll('tbody td')];
+            return {
+              cells: cells.length,
+              labeled: cells.filter((cell) => cell.hasAttribute('data-label')).length,
+              minWidth: getComputedStyle(table).minWidth,
+            };
+          });
+          if (!tableCards) problems.push('mobile table не найдена');
+          if (tableCards?.cells && tableCards.labeled !== tableCards.cells) {
+            problems.push(`mobile table labels: ${tableCards.labeled}/${tableCards.cells}`);
+          }
+          if (tableCards && tableCards.minWidth !== '0px') {
+            problems.push(`mobile table min-width=${tableCards.minWidth}`);
+          }
+        }
         record(block, name, problems, { heading: state.heading });
       }
     } catch (err) {
@@ -345,9 +364,9 @@ async function runEdgeBlock(browser) {
     }
   }
 
-  // D20: Escape закрывает модалку создания заявки
+  // D20: mobile bottom-sheet и Escape
   {
-    const context = await browser.newContext({ viewport: { width: DESKTOP.width, height: DESKTOP.height } });
+    const context = await browser.newContext({ viewport: { width: MOBILE.width, height: MOBILE.height } });
     const page = await context.newPage();
     attachCollectors(page);
     try {
@@ -356,16 +375,31 @@ async function runEdgeBlock(browser) {
       const createBtn = page.getByRole('button', { name: /Новая заявка/i }).first();
       await createBtn.click();
       await page.waitForTimeout(450);
-      const opened = await page.evaluate(() => !!document.querySelector('.modal-backdrop'));
+      const sheet = await page.evaluate(() => {
+        const backdrop = document.querySelector('.modal-backdrop');
+        const modal = backdrop?.querySelector('.form-modal');
+        if (!backdrop || !modal) return null;
+        const rect = modal.getBoundingClientRect();
+        const style = getComputedStyle(modal);
+        return {
+          height: rect.height,
+          viewport: window.innerHeight,
+          radius: parseFloat(style.borderTopLeftRadius),
+          align: getComputedStyle(backdrop).alignItems,
+        };
+      });
       await page.keyboard.press('Escape');
       await page.waitForTimeout(450);
       const closed = await page.evaluate(() => !document.querySelector('.modal-backdrop'));
       const { problems } = await inspect(page);
-      if (!opened) problems.push('модалка не открылась');
+      if (!sheet) problems.push('модалка не открылась');
+      if (sheet && sheet.height >= sheet.viewport - 2) problems.push('модалка осталась fullscreen');
+      if (sheet && sheet.radius < 10) problems.push('у bottom-sheet нет скругления');
+      if (sheet && sheet.align !== 'flex-end') problems.push(`backdrop align-items=${sheet.align}`);
       if (!closed) problems.push('Escape не закрыл модалку');
-      record(block, 'Escape закрывает модалку заявки', problems);
+      record(block, 'mobile bottom-sheet + Escape', problems, { sheet });
     } catch (err) {
-      record(block, 'Escape закрывает модалку заявки', [`исключение: ${err.message}`]);
+      record(block, 'mobile bottom-sheet + Escape', [`исключение: ${err.message}`]);
     } finally {
       await context.close();
     }

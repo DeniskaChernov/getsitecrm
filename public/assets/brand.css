@@ -340,13 +340,10 @@ article.panel:hover,
 .form-modal,
 .command-palette,
 .script-editor-modal {
-  width: min(660px, calc(100vw - 24px)) !important;
-  max-height: min(92vh, 900px) !important;
   overflow: auto !important;
   background: rgba(14, 14, 20, 0.94) !important;
   color: var(--gs-text) !important;
   border: 1px solid var(--gs-glass-border) !important;
-  border-radius: 24px !important;
   box-shadow:
     0 0 0 1px rgba(205, 251, 5, 0.06),
     0 30px 90px rgba(0, 0, 0, 0.55),
@@ -354,6 +351,17 @@ article.panel:hover,
   backdrop-filter: blur(28px) saturate(1.35) !important;
   -webkit-backdrop-filter: blur(28px) saturate(1.35) !important;
   padding: 0 !important;
+}
+
+@media (min-width: 901px) {
+  .form-modal,
+  .command-palette,
+  .script-editor-modal,
+  .task-editor-modal {
+    width: min(660px, calc(100vw - 24px)) !important;
+    max-height: min(92vh, 900px) !important;
+    border-radius: 24px !important;
+  }
 }
 
 .form-modal .modal-title,
@@ -868,10 +876,6 @@ kbd {
 @keyframes gs-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-body.gs-nav-ready .workspace {
-  animation: gs-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 @media (max-width: 900px) {

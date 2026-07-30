@@ -212,6 +212,13 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .auth-hero-inner,
+  .auth-panel {
+    animation: none;
+  }
+}
+
 @media (max-width: 900px) {
   .auth-shell { grid-template-columns: 1fr; }
   .auth-hero {

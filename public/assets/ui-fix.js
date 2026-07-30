@@ -1,5 +1,5 @@
 /**
- * Global UX fixes: Escape closes modals, stale backdrop cleanup, mobile nav overlay.
+ * Global UX fixes: Escape, stale backdrops, semantic labels for mobile table cards.
  */
 (function uiFix() {
   function closestBackdrop(el) {
@@ -24,6 +24,30 @@
     document.querySelectorAll('.mobile-menu').forEach((b) => {
       b.setAttribute('aria-expanded', 'false');
       b.setAttribute('aria-label', 'Открыть меню');
+    });
+  }
+
+  function enhanceTableCards() {
+    document.querySelectorAll('.table-panel table').forEach((table) => {
+      const labels = [...table.querySelectorAll('thead th')].map((cell) =>
+        (cell.textContent || '').replace(/\s+/g, ' ').trim()
+      );
+      if (!labels.length) return;
+      table.querySelectorAll('tbody tr').forEach((row) => {
+        [...row.children].forEach((cell, index) => {
+          if (cell.tagName === 'TD') cell.dataset.label = labels[index] || '';
+        });
+      });
+    });
+  }
+
+  let enhanceQueued = false;
+  function scheduleEnhanceTableCards() {
+    if (enhanceQueued) return;
+    enhanceQueued = true;
+    requestAnimationFrame(() => {
+      enhanceQueued = false;
+      enhanceTableCards();
     });
   }
 
@@ -69,12 +93,15 @@
         bd.remove();
       }
     });
+    scheduleEnhanceTableCards();
   });
   if (document.body) {
     obs.observe(document.body, { childList: true, subtree: true });
+    scheduleEnhanceTableCards();
   } else {
     document.addEventListener('DOMContentLoaded', () => {
       obs.observe(document.body, { childList: true, subtree: true });
+      scheduleEnhanceTableCards();
     });
   }
 
