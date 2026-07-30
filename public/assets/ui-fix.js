@@ -19,10 +19,23 @@
     backdrop.remove();
   }
 
+  function closeMobileNav() {
+    document.body.classList.remove('gs-nav-open');
+    document.querySelectorAll('.mobile-menu').forEach((b) => {
+      b.setAttribute('aria-expanded', 'false');
+      b.setAttribute('aria-label', 'Открыть меню');
+    });
+  }
+
   document.addEventListener(
     'keydown',
     (e) => {
       if (e.key !== 'Escape') return;
+      if (document.body.classList.contains('gs-nav-open')) {
+        e.preventDefault();
+        closeMobileNav();
+        return;
+      }
       const adminModal = document.getElementById('gs-user-admin-modal');
       if (adminModal && !adminModal.hidden) {
         e.preventDefault();
@@ -74,31 +87,29 @@
       if (e.target.closest('.mobile-menu')) return;
       // ::after overlay is on body — clicks hit elements under; use body listener
       if (e.target === document.body || e.target.classList?.contains('sidebar-scrim')) {
-        document.body.classList.remove('gs-nav-open');
+        closeMobileNav();
       }
     },
     true
   );
 
-  // Dedicated overlay element for reliable mobile dismiss
+  // Overlay: следим только за class на body (не весь subtree)
   function ensureMobileOverlay() {
     let el = document.getElementById('gs-nav-overlay');
     if (el) return el;
     el = document.createElement('div');
     el.id = 'gs-nav-overlay';
     el.setAttribute('aria-hidden', 'true');
-    el.addEventListener('click', () => document.body.classList.remove('gs-nav-open'));
+    el.addEventListener('click', () => closeMobileNav());
     document.body.appendChild(el);
     return el;
   }
 
-  const syncOverlay = () => {
-    ensureMobileOverlay();
-  };
-  syncOverlay();
-  new MutationObserver(syncOverlay).observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['class'],
-    subtree: true,
-  });
+  ensureMobileOverlay();
+  if (document.body) {
+    new MutationObserver(() => ensureMobileOverlay()).observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
 })();

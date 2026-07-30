@@ -12,11 +12,23 @@
 }
 
 body.gs-nav-ready .os-shell > .sidebar,
-body.gs-nav-ready aside.sidebar {
+body.gs-nav-ready aside.sidebar,
+body.gs-nav-ready .sidebar,
+body.gs-nav-ready .sidebar.is-open {
   display: none !important;
   width: 0 !important;
   min-width: 0 !important;
+  max-width: 0 !important;
   overflow: hidden !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateX(-120%) !important;
+}
+
+body.gs-nav-ready .sidebar-scrim {
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }
 
 body.gs-nav-ready .os-shell {
@@ -174,6 +186,28 @@ body.gs-nav-collapsed .gs-nav-reopen {
   border-color: rgba(205, 251, 5, 0.4);
   background: rgba(205, 251, 5, 0.1);
   transform: translateX(-1px);
+}
+
+#gs-nav .gs-drawer-close {
+  display: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--gs-nav-text);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+#gs-nav .gs-drawer-close:hover {
+  border-color: rgba(205, 251, 5, 0.4);
+  background: rgba(205, 251, 5, 0.12);
+  color: #cdfb05;
 }
 
 .gs-nav-reopen {
@@ -395,7 +429,7 @@ body.gs-nav-collapsed .gs-nav-reopen {
   #gs-nav {
     transform: translateX(-105%);
     width: min(300px, 88vw);
-    z-index: 40;
+    z-index: 120;
     opacity: 1;
     pointer-events: auto;
   }
@@ -405,12 +439,16 @@ body.gs-nav-collapsed .gs-nav-reopen {
     visibility: visible !important;
     pointer-events: auto !important;
   }
+  /* На мобилке collapse не используется — не прячем drawer opacity:0 */
   body.gs-nav-collapsed #gs-nav {
     transform: translateX(-105%) !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
     animation: none !important;
+  }
+  body.gs-nav-collapsed.gs-nav-open #gs-nav {
+    transform: translateX(0) !important;
   }
   .gs-nav-reopen { display: none !important; }
   #gs-nav-overlay {
@@ -418,10 +456,22 @@ body.gs-nav-collapsed .gs-nav-reopen {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.55);
-    z-index: 35;
+    z-index: 110;
     backdrop-filter: blur(4px);
   }
   body.gs-nav-open #gs-nav-overlay { display: block; }
+
+  body.gs-nav-ready .sidebar,
+  body.gs-nav-ready .sidebar.is-open {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+  }
+  body.gs-nav-ready .sidebar-scrim {
+    display: none !important;
+    pointer-events: none !important;
+  }
 }
 
 .gs-user-admin-fab {

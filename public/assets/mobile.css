@@ -1,0 +1,372 @@
+/**
+ * Mobile / smartphone adaptive layer for getsite* OS
+ * Breakpoint: 900px (aligned with original CRM shell)
+ */
+
+/* Safe areas */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body.gs-nav-ready {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (max-width: 900px) {
+  /* Never trap: collapsed desktop state must not hide mobile drawer reopen */
+  body.gs-nav-collapsed {
+    --gs-nav-w: 0px;
+  }
+
+  body.gs-nav-collapsed #gs-nav {
+    transform: translateX(-105%) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  body.gs-nav-collapsed.gs-nav-open #gs-nav,
+  body.gs-nav-open #gs-nav {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    animation: none !important;
+  }
+
+  body.gs-nav-ready .sidebar,
+  body.gs-nav-ready .sidebar.is-open,
+  body.gs-nav-ready aside.sidebar {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body.gs-nav-ready .sidebar-scrim {
+    display: none !important;
+  }
+
+  /* Drawer */
+  #gs-nav {
+    width: min(320px, 92vw) !important;
+    max-width: 100vw;
+    z-index: 120 !important;
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(205, 251, 5, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  #gs-nav .gs-item {
+    min-height: 48px !important;
+    padding: 12px 14px !important;
+    font-size: 15px !important;
+    border-radius: 14px !important;
+  }
+
+  #gs-nav .gs-top {
+    padding: 14px 12px 12px !important;
+    gap: 10px !important;
+  }
+
+  #gs-nav .gs-collapse {
+    display: none !important; /* desktop-only hide control */
+  }
+
+  #gs-nav .gs-drawer-close {
+    display: inline-flex !important;
+  }
+
+  #gs-nav .gs-create {
+    position: static !important;
+  }
+
+  #gs-nav .gs-top {
+    position: relative !important;
+  }
+
+  #gs-nav .gs-create-menu {
+    position: absolute !important;
+    left: 8px !important;
+    right: 8px !important;
+    top: calc(100% + 8px) !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-height: min(50vh, 360px);
+    overflow: auto;
+    z-index: 80 !important;
+  }
+
+  #gs-nav-overlay {
+    z-index: 110 !important;
+    background: rgba(0, 0, 0, 0.62) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+  }
+
+  /* Topbar */
+  .topbar {
+    height: 58px !important;
+    min-height: 58px !important;
+    padding: 0 10px 0 max(10px, env(safe-area-inset-left)) !important;
+    gap: 8px !important;
+  }
+
+  body.gs-nav-ready .topbar,
+  body.gs-nav-collapsed .topbar,
+  body.gs-nav-collapsed.gs-nav-ready .topbar {
+    padding-left: max(10px, env(safe-area-inset-left)) !important;
+  }
+
+  .mobile-menu {
+    display: grid !important;
+    place-items: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(205, 251, 5, 0.35) !important;
+    background: rgba(205, 251, 5, 0.1) !important;
+    color: #cdfb05 !important;
+    flex: 0 0 44px !important;
+  }
+
+  body.gs-nav-open .mobile-menu {
+    background: rgba(205, 251, 5, 0.22) !important;
+    box-shadow: 0 0 18px rgba(205, 251, 5, 0.25);
+  }
+
+  .crumb {
+    font-size: 13px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .crumb strong {
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 42vw !important;
+  }
+
+  .search-trigger span,
+  .search-trigger kbd {
+    display: none !important;
+  }
+
+  /* Content density */
+  body.gs-nav-ready .page-wrap,
+  body.gs-nav-ready .workspace > main,
+  body.gs-nav-ready main.page-wrap {
+    padding: 16px 14px 96px !important;
+    max-width: 100% !important;
+  }
+
+  .page-heading {
+    margin-bottom: 20px !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .page-heading h1,
+  .page-heading > div > h1 {
+    font-size: clamp(26px, 8vw, 34px) !important;
+    line-height: 1.05 !important;
+  }
+
+  .heading-actions {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .heading-actions .button {
+    flex: 1 1 auto !important;
+    min-height: 44px !important;
+  }
+
+  .project-stats,
+  .kpi-grid,
+  .today-grid,
+  .dashboard-grid,
+  .simple-dashboard,
+  .analytics-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .workflow-strip {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 0 !important;
+  }
+
+  .workflow-strip > button {
+    flex: 0 0 min(72vw, 260px) !important;
+    scroll-snap-align: start;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Tables */
+  .table-wrap,
+  .panel > .table,
+  .panel .table-scroll,
+  main .panel {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 640px;
+  }
+
+  /* Modals — near full screen */
+  .modal-backdrop {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .form-modal,
+  .command-palette,
+  .script-editor-modal {
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+
+  .form-modal .form-grid {
+    padding: 14px 16px 110px !important;
+  }
+
+  .form-modal .form-actions,
+  .form-modal footer,
+  .form-modal .modal-actions {
+    padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .form-modal .modal-title,
+  .form-modal > div.modal-title,
+  .form-modal > div:first-child {
+    padding-top: max(14px, env(safe-area-inset-top)) !important;
+  }
+
+  /* Bottom quick tabs */
+  .mobile-tabs {
+    z-index: 50 !important;
+    height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    background: rgba(8, 8, 14, 0.92) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  .mobile-tabs button {
+    min-height: 48px !important;
+    border-radius: 12px !important;
+    font-size: 11px !important;
+    font-weight: 650 !important;
+    color: #a8a8a0 !important;
+    gap: 4px !important;
+  }
+
+  .mobile-tabs button.active {
+    color: #cdfb05 !important;
+    background: rgba(205, 251, 5, 0.1) !important;
+  }
+
+  body.gs-nav-open .mobile-tabs {
+    pointer-events: none;
+    opacity: 0.35;
+  }
+
+  /* Filters / toolbars — horizontal scroll */
+  .table-toolbar,
+  .leads-toolbar,
+  .filters-row,
+  .panel > .toolbar,
+  main .filters {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px !important;
+    padding-bottom: 4px;
+  }
+
+  .table-toolbar select,
+  .leads-toolbar select,
+  .filters-row select,
+  select {
+    font-size: 16px !important; /* без зума iOS */
+    min-height: 44px !important;
+  }
+
+  input[type="search"],
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* FAB над нижней панелью */
+  .gs-user-admin-fab {
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 12px 14px !important;
+    font-size: 13px !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 20px rgba(205, 251, 5, 0.25) !important;
+  }
+
+  .toast {
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .gs-user-admin-card {
+    width: min(100vw - 24px, 420px) !important;
+    max-height: min(88dvh, 640px) !important;
+  }
+
+  /* Auth */
+  .auth-shell {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .boot-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  .page-heading p {
+    font-size: 13px !important;
+  }
+
+  #gs-nav .gs-footer-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  #gs-nav .gs-footer-actions button {
+    min-height: 44px !important;
+  }
+
+  .table-search {
+    max-width: 100% !important;
+  }
+}
+
+/* Desktop: keep hamburger hidden */
+@media (min-width: 901px) {
+  .mobile-menu {
+    display: none !important;
+  }
+}
