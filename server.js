@@ -99,15 +99,41 @@ async function main() {
   const defaults = defaultUsers();
   let changed = false;
   for (const u of defaults) {
-    const existing = (data.users || []).find((x) => x.email === u.email);
+    const passwordFromEnv = Boolean(u._passwordFromEnv);
+    // Не пишем служебные поля в БД
+    const clean = {
+      id: u.id,
+      email: u.email,
+      displayName: u.displayName,
+      passwordHash: u.passwordHash,
+      systemRole: u.systemRole,
+      position: u.position,
+      weeklyCapacity: u.weeklyCapacity,
+      active: u.active,
+    };
+    // Сначала ищем по id (стабильный ключ), затем по email
+    let existing = (data.users || []).find((x) => x.id === clean.id);
     if (!existing) {
-      data.users = [...(data.users || []), u];
+      existing = (data.users || []).find((x) => x.email === clean.email);
+    }
+    if (!existing) {
+      data.users = [...(data.users || []), clean];
       changed = true;
-    } else if (!existing.passwordHash || !String(existing.passwordHash).includes(':')) {
-      existing.passwordHash = u.passwordHash;
-      existing.systemRole = existing.systemRole || u.systemRole;
-      existing.displayName = existing.displayName || u.displayName;
-      existing.position = existing.position || u.position;
+      continue;
+    }
+    if (existing.email !== clean.email) {
+      existing.email = clean.email;
+      changed = true;
+    }
+    if (!existing.passwordHash || !String(existing.passwordHash).includes(':')) {
+      existing.passwordHash = clean.passwordHash;
+      existing.systemRole = existing.systemRole || clean.systemRole;
+      existing.displayName = existing.displayName || clean.displayName;
+      existing.position = existing.position || clean.position;
+      changed = true;
+    } else if (passwordFromEnv) {
+      // AUTH_*_PASSWORD задан в Railway — принудительно обновляем хеш при старте
+      existing.passwordHash = clean.passwordHash;
       changed = true;
     }
   }

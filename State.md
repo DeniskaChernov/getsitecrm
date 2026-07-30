@@ -3,6 +3,12 @@
 ## Policy
 - После любых правок: commit + push сразу (user 2026-07-30).
 
+## 2026-07-30 Railway AUTH_* переменные
+- Сервис `getsitecrm` (проект getsite.uz): AUTH_DENIS/NIKITA/MANAGER/DESIGNER_{EMAIL,PASSWORD}.
+- Пароли сейчас `__SET_ME__` (плейсхолдер) — юзер сам вписывает секреты в Railway Variables.
+- Код: при старте, если AUTH_*_PASSWORD задан и ≠ `__SET_ME__`, хеш пользователя в БД обновляется.
+- CRM URL: `https://getsitecrm-production.up.railway.app` (getsite.uz → 404 на /api).
+
 ## 2026-07-30 фиксы по скриншотам юзера (3 дефекта)
 - `.status-pill` превращалась в эллипс: наш `brand.css` ставил `border-radius:999px !important`, а flex-родитель растягивал её по высоте (161px). Fix: `border-radius:14px` (браузер сам режет до половины высоты → однострочная остаётся таблеткой), `align-self:center` + `width:fit-content` → h 161→52.
 - Текст «Есть Несохранённые Изменения»: базовый `text-transform:capitalize` капитализировал каждое слово. Fix: `uppercase` (как остальные чипы/заголовки таблиц). `::first-letter` не подошёл — не работает на `inline-flex`.
