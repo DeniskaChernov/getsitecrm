@@ -889,7 +889,15 @@ body.gs-nav-ready main.page-wrap {
   max-width: 1400px;
 }
 
-/* Soft glass scrollbars */
+/* Soft glass scrollbars.
+   scrollbar-color наследуется, а scrollbar-width — нет. Из-за этого во
+   вложенных прокручиваемых блоках (.estimate-table, .workflow-strip и др.)
+   оставался широкий системный скроллбар с кнопками-стрелками, которые
+   Chrome на Windows красил в лаймовый. Задаём thin для всех элементов. */
+* {
+  scrollbar-width: thin;
+}
+
 #gs-nav .gs-scroll,
 .workspace,
 .page-wrap,
@@ -963,14 +971,28 @@ tbody tr:hover {
   padding: 16px 18px !important;
 }
 
-/* Status chips */
+/* Status chips.
+   Радиус 14px: для однострочной пилюли (высота ~28px) браузер сам ограничит
+   его половиной высоты — форма остаётся «таблеткой». Если текст переносится
+   на несколько строк, получается скруглённый прямоугольник, а не эллипс. */
 .status-pill,
 .badge,
 .service-type-badge {
-  border-radius: 999px !important;
+  border-radius: 14px !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   letter-spacing: 0.02em;
+}
+
+/* Пилюлю растягивал flex-родитель (align-items: stretch) до 161px по высоте */
+.status-pill {
+  align-self: center;
+  width: fit-content;
+  max-width: 100%;
+  /* Базовый capitalize давал «Есть Несохранённые Изменения» — каждое слово
+     с заглавной. Для статус-чипа берём uppercase, как у остальных
+     чипов и заголовков таблиц. */
+  text-transform: uppercase !important;
 }
 
 .service-type-badge {
@@ -1021,6 +1043,13 @@ tbody tr:hover {
   z-index: 6 !important;
   background: rgba(10, 10, 14, 0.96) !important;
   backdrop-filter: none !important;
+}
+
+/* Пустое состояние сметы имело min-width: 680px внутри прокручиваемой
+   таблицы: на узком экране текст уезжал вправо и обрезался, требуя
+   горизонтальной прокрутки. Теперь занимает видимую ширину контейнера. */
+.estimate-lines-empty {
+  min-width: 0 !important;
 }
 
 /* Смета: длинные подписи кнопок КП распирали панель вправо (nowrap + min-width: auto) */
