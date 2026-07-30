@@ -13,7 +13,8 @@
     "qa": "node scripts/qa-acceptance.js",
     "qa:stress": "node scripts/qa-stress-15x5.js",
     "qa:wave2": "node scripts/qa-stress-wave2.js",
-    "qa:all": "node scripts/qa-acceptance.js && node scripts/qa-stress-15x5.js && node scripts/qa-stress-wave2.js",
+    "qa:ui": "node scripts/qa-ui-75.js",
+    "qa:all": "node scripts/qa-acceptance.js && node scripts/qa-stress-15x5.js && node scripts/qa-stress-wave2.js && node scripts/qa-ui-75.js",
     "test": "node --test test/**/*.test.js",
     "test:margin": "node --test test/money.test.js",
     "patch:roles": "node scripts/patch-roles-ui.js",
@@ -30,5 +31,8 @@
     "pg": "^8.22.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.0"
   }
 }

@@ -3,22 +3,23 @@
  * Скрывает разрозненный sidebar приложения и ведёт по рабочим сценариям.
  */
 
-const DISPLAY_TO_INTERNAL = {
-  Главная: 'Главная',
-  Заявки: 'Заявки',
-  Клиенты: 'Клиенты',
-  Сметы: 'Сметы',
-  Проекты: 'Проекты',
-  'Команда и сроки': 'Команда и сроки',
-  Деньги: 'Деньги',
-  'Расчёт стоимости': 'Расчёт стоимости',
-  Прайс: 'Прайс',
-  'Скрипты продаж': 'Скрипты продаж',
-  История: 'История',
-  Отчёты: 'Отчёты',
-  Настройки: 'Настройки',
-  'Готовность системы': 'Готовность системы',
-};
+/** Подписи разделов в шапке — по ним подсвечиваем активный пункт меню */
+const SECTION_TITLES = [
+  'Главная',
+  'Заявки',
+  'Клиенты',
+  'Сметы',
+  'Проекты',
+  'Команда и сроки',
+  'Деньги',
+  'Расчёт стоимости',
+  'Прайс',
+  'Скрипты продаж',
+  'История',
+  'Отчёты',
+  'Настройки',
+  'Готовность системы',
+];
 
 const NAV_TREE = [
   {
@@ -108,21 +109,22 @@ function iconSvg(name) {
   return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[name] || paths.home}</svg>`;
 }
 
+/** Подпись раздела в нашем меню → внутренняя метка приложения / API */
+const TARGET_TO_INTERNAL = {
+  Деньги: 'Оплаты и расходы',
+  'Расчёт стоимости': 'Unit Economics',
+  Отчёты: 'Аналитика',
+  'Готовность системы': 'Готовность',
+};
+
+function toInternalLabel(target) {
+  return TARGET_TO_INTERNAL[target] || target;
+}
+
 function isAllowed(role, target, rolesFromApi) {
   if (rolesFromApi?.[role]?.sections) {
     const sections = rolesFromApi[role].sections;
-    // Map nav targets to API section labels
-    const apiLabel =
-      target === 'Деньги'
-        ? 'Оплаты и расходы'
-        : target === 'Расчёт стоимости'
-          ? 'Unit Economics'
-          : target === 'Отчёты'
-            ? 'Аналитика'
-            : target === 'Готовность системы'
-              ? 'Готовность'
-              : target;
-    return sections.includes(apiLabel) || sections.includes(target);
+    return sections.includes(toInternalLabel(target)) || sections.includes(target);
   }
   const set = ROLE_ALLOWED[role];
   if (!set) return true;
@@ -137,27 +139,24 @@ function findOriginalButton(target) {
   });
 }
 
-function goToSection(target) {
-  const btn = findOriginalButton(target);
-  if (btn) {
-    btn.click();
-    return true;
-  }
-  // fallback: session key uses internal labels sometimes
-  const internal =
-    target === 'Деньги'
-      ? 'Оплаты и расходы'
-      : target === 'Расчёт стоимости'
-        ? 'Unit Economics'
-        : target === 'Отчёты'
-          ? 'Аналитика'
-          : target === 'Готовность системы'
-            ? 'Готовность'
-            : target;
+/**
+ * Переход в раздел. Кнопки приложения монтируются асинхронно, поэтому ждём их
+ * появления: иначе клик сразу после логина молча терялся.
+ */
+function goToSection(target, attempts = 24) {
+  const internal = toInternalLabel(target);
   window.sessionStorage.setItem('getsite-os-section', internal);
-  const retry = findOriginalButton(target) || findOriginalButton(internal);
-  retry?.click();
-  return Boolean(retry);
+
+  const tryClick = (left) => {
+    const btn = findOriginalButton(target) || findOriginalButton(internal);
+    if (btn) {
+      btn.click();
+      return;
+    }
+    if (left <= 0) return;
+    setTimeout(() => tryClick(left - 1), 120);
+  };
+  tryClick(attempts);
 }
 
 function syncActive(target) {
@@ -171,7 +170,7 @@ function watchActiveSection() {
     const strong = document.querySelector('.topbar .crumb strong, banner strong, .crumb strong');
     const title = (strong?.textContent || '').trim();
     if (!title) return;
-    const match = Object.keys(DISPLAY_TO_INTERNAL).find((k) => title === k || title.startsWith(k));
+    const match = SECTION_TITLES.find((k) => title === k || title.startsWith(k));
     if (match) syncActive(match);
   };
   update();
@@ -598,7 +597,7 @@ export function mountNavShell(user, rolesFromApi) {
   if (!document.querySelector('link[href*="nav-shell.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/nav-shell.css?v=20260728p';
+    link.href = '/assets/nav-shell.css?v=20260730a';
     document.head.appendChild(link);
   }
   buildNav(user, rolesFromApi);

@@ -1023,6 +1023,22 @@ tbody tr:hover {
   backdrop-filter: none !important;
 }
 
+/* Смета: длинные подписи кнопок КП распирали панель вправо (nowrap + min-width: auto) */
+.commercial-route {
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+}
+
+.commercial-actions {
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+  justify-content: flex-end !important;
+}
+
+.commercial-actions .button {
+  white-space: normal !important;
+}
+
 /* Native select popup: force dark scheme on Windows/Chrome */
 html {
   color-scheme: dark;
