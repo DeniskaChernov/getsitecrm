@@ -1039,6 +1039,45 @@ tbody tr:hover {
   white-space: normal !important;
 }
 
+/* KPI-карточки «Сегодня»: в 2-колоночном гриде большое число наезжало на
+   подпись, а подзаголовок обрезался по ellipsis. Переводим внутренний блок в
+   вертикальный стек: подпись → число → подзаголовок (с полным переносом). */
+.today-grid > button > div {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  min-width: 0;
+}
+
+.today-grid strong {
+  grid-area: auto !important;
+  font-size: 26px !important;
+  line-height: 1.05 !important;
+}
+
+.today-grid small {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.today-grid p {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Шапка раздела: при длинных подписях действий (напр. «Сметы») блок
+   действий переносится на новую строку, а не распирает панель вправо. */
+.page-heading {
+  flex-wrap: wrap !important;
+}
+
+.heading-actions {
+  flex-wrap: wrap !important;
+}
+
 /* Native select popup: force dark scheme on Windows/Chrome */
 html {
   color-scheme: dark;

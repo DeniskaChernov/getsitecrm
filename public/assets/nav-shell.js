@@ -597,7 +597,7 @@ export function mountNavShell(user, rolesFromApi) {
   if (!document.querySelector('link[href*="nav-shell.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/nav-shell.css?v=20260730a';
+    link.href = '/assets/nav-shell.css?v=20260730b';
     document.head.appendChild(link);
   }
   buildNav(user, rolesFromApi);

@@ -3,6 +3,16 @@
 ## Policy
 - После любых правок: commit + push сразу (user 2026-07-30).
 
+## 2026-07-30 UI-аудит (42 экрана) + 5 фиксов визуала
+- Временный аудитор (эвристики: internal overflow / clipped / tiny tap / under-topbar) прогнал 14 разделов × 3 вьюпорта (390/768/1440), после — удалён.
+- Планшет 768px чист. Doc-overflow нигде. Найдено и исправлено:
+- KPI «Сегодня» (`.today-grid>button>div`): 2-колоночный грид → число наезжало на подпись, `p` (в т.ч. сумма) резался ellipsis. Fix: вертикальный стек (подпись→число→подзаголовок, `p` переносится). `brand.css`.
+- Мобильный провал шапки «Проекты»/«Команда» (~292px): дети `.page-heading` с `flex-grow:1` растягивались по высоте после перевода в колонку. Fix: `.page-heading{display:block}` на мобиле (height 572→152). `mobile.css`.
+- Тап-таргеты <44px: `.project-card-actions button`, `.card-link`, `.row-menu`, `.service-edit-button`, `.receive-payment` → min-height 44 на мобиле. `mobile.css`.
+- FAB «Команда» наезжал на карточки: поднят до 84px, `page-wrap` padding-bottom 96→132. `mobile.css`.
+- Шапка «Сметы» (desktop) распирала панель на 24px: `.page-heading/.heading-actions{flex-wrap:wrap}`. `brand.css`.
+- Проверки: qa:ui 75/75, npm test 26/26, qa-acceptance OK. Cache `?v=20260730b`.
+
 ## 2026-07-30 UI-прогоны (75) + 2 фикса
 - Новый `scripts/qa-ui-75.js` (`npm run qa:ui`, playwright devDep): 28 founder + 18 sales + 8 designer + 21 краевых.
 - Проверяет: pageerror/console.error, `#root` не пуст, шапка = раздел, нет NaN/undefined/Infinity, нет h-оверфлоу, меню живо.

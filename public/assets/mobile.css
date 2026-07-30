@@ -158,15 +158,19 @@
   body.gs-nav-ready .page-wrap,
   body.gs-nav-ready .workspace > main,
   body.gs-nav-ready main.page-wrap {
-    padding: 16px 14px 96px !important;
+    padding: 16px 14px 132px !important;
     max-width: 100% !important;
   }
 
+  /* Блочная раскладка: убираем flex-растяжение, из-за которого дети
+     (заголовок и действия) с flex-grow разъезжались по высоте */
   .page-heading {
+    display: block !important;
     margin-bottom: 20px !important;
-    gap: 12px !important;
-    align-items: stretch !important;
-    flex-direction: column !important;
+  }
+
+  .page-heading > * {
+    width: 100% !important;
   }
 
   .page-heading h1,
@@ -180,6 +184,7 @@
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 8px !important;
+    margin-top: 14px !important;
   }
 
   .heading-actions .button {
@@ -318,10 +323,34 @@
     font-size: 16px !important;
   }
 
-  /* FAB над нижней панелью */
+  /* Тап-таргеты: строчные и иконочные кнопки действий в карточках/строках
+     должны иметь высоту не меньше 44px для удобного нажатия пальцем */
+  .project-card-actions button,
+  .card-link {
+    min-height: 44px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .project-card-actions {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  button.row-menu,
+  button.service-edit-button {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  .receive-payment {
+    min-height: 44px !important;
+  }
+
+  /* FAB над нижней панелью; поднят выше, чтобы не перекрывать карточки */
   .gs-user-admin-fab {
     right: max(12px, env(safe-area-inset-right)) !important;
-    bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
     padding: 12px 14px !important;
     font-size: 13px !important;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 20px rgba(205, 251, 5, 0.25) !important;
