@@ -29,6 +29,27 @@ const replacements = [
     'маржа — ${e.margin.toFixed(1)}%',
     'маржа — ${Number(e.margin).toFixed(2)}%',
   ],
+  // Маржа nullable (цена 0 → null): показываем «—» вместо падения на .toFixed
+  [
+    'children:[t.margin.toFixed(1),`%`]',
+    'children:[globalThis.__gsMoney.fmtPct(t.margin,1)]',
+  ],
+  [
+    'children:[`Прибыль `,t.margin.toFixed(1),`%`]',
+    'children:[`Прибыль `,globalThis.__gsMoney.fmtPct(t.margin,1)]',
+  ],
+  [
+    'children:[`чистая прибыль ÷ цена продажи × 100 = `,E.margin.toFixed(1),`%`]',
+    'children:[`чистая прибыль ÷ цена продажи × 100 = `,globalThis.__gsMoney.fmtPct(E.margin,1)]',
+  ],
+  [
+    'children:[e.margin.toFixed(1),`% маржа`]',
+    'children:[globalThis.__gsMoney.fmtPct(e.margin,1),` маржа`]',
+  ],
+  [
+    'text:`Расчёт стоимости · маржа ${e.margin.toFixed(1)}%`',
+    'text:`Расчёт стоимости · маржа ${globalThis.__gsMoney.fmtPct(e.margin,1)}`',
+  ],
 ];
 
 let changed = 0;

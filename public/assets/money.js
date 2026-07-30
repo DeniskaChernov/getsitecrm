@@ -37,5 +37,15 @@
     return roundHalfUp(((p - c) / p) * 100, d);
   }
 
-  global.__gsMoney = { parseMoney, roundHalfUp, calcMarginPct };
+  /**
+   * Процент для показа в UI: «—» когда значение не определено (цена 0 и т.п.).
+   * Возвращает строку вместе со знаком %, поэтому в разметке отдельный «%» не нужен.
+   */
+  function fmtPct(value, decimals) {
+    const d = decimals == null ? 1 : decimals;
+    if (value == null || typeof value !== 'number' || !Number.isFinite(value)) return '—';
+    return roundHalfUp(value, d).toFixed(d) + '%';
+  }
+
+  global.__gsMoney = { parseMoney, roundHalfUp, calcMarginPct, fmtPct };
 })(typeof window !== 'undefined' ? window : globalThis);

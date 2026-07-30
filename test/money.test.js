@@ -4,7 +4,10 @@
  */
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { parseMoney, roundHalfUp, roundMoney, calcMarginPct } = require('../lib/money');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const { parseMoney, roundHalfUp, roundMoney, calcMarginPct, formatMarginPct } = require('../lib/money');
 
 describe('roundHalfUp', () => {
   it('rounds .5 away from zero (half-up)', () => {
@@ -89,5 +92,55 @@ describe('roundMoney', () => {
     assert.equal(roundMoney(1000.4), 1000);
     assert.equal(roundMoney(1000.5), 1001);
     assert.equal(roundMoney('1 000,6'), 1001);
+  });
+});
+
+describe('formatMarginPct', () => {
+  it('undefined margin renders as dash, never NaN', () => {
+    assert.equal(formatMarginPct(null), '—');
+    assert.equal(formatMarginPct(undefined), '—');
+    assert.equal(formatMarginPct(NaN), '—');
+    assert.equal(formatMarginPct(Infinity), '—');
+  });
+
+  it('numbers keep sign and precision', () => {
+    assert.equal(formatMarginPct(48.666), '48.67%');
+    assert.equal(formatMarginPct(-12.5), '-12.50%');
+    assert.equal(formatMarginPct(0), '0.00%');
+  });
+});
+
+/**
+ * Клиентский money.js — единственная защита от краша React
+ * при margin === null (страница «Себестоимость»).
+ */
+describe('browser money.js (public/assets/money.js)', () => {
+  const code = fs.readFileSync(path.join(__dirname, '..', 'public', 'assets', 'money.js'), 'utf8');
+  const sandbox = { window: {} };
+  vm.createContext(sandbox);
+  vm.runInContext(code, sandbox);
+  const money = sandbox.window.__gsMoney;
+
+  it('exposes the helpers the patched client calls', () => {
+    assert.equal(typeof money.calcMarginPct, 'function');
+    assert.equal(typeof money.fmtPct, 'function');
+  });
+
+  it('fmtPct never throws on undefined margin', () => {
+    assert.equal(money.fmtPct(null, 1), '—');
+    assert.equal(money.fmtPct(undefined, 1), '—');
+    assert.equal(money.fmtPct(NaN, 1), '—');
+    assert.equal(money.fmtPct(Infinity, 1), '—');
+  });
+
+  it('fmtPct matches the 1-decimal display used in the calculator', () => {
+    assert.equal(money.fmtPct(48.666, 1), '48.7%');
+    assert.equal(money.fmtPct(51.25, 1), '51.3%');
+    assert.equal(money.fmtPct(-3, 1), '-3.0%');
+  });
+
+  it('price 0 yields null margin (contract behind the dash)', () => {
+    assert.equal(money.calcMarginPct(0, 500), null);
+    assert.equal(money.fmtPct(money.calcMarginPct(0, 500), 1), '—');
   });
 });
