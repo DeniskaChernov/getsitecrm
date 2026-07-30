@@ -11,26 +11,6 @@
   --gs-nav-active: rgba(205, 251, 5, 0.12);
 }
 
-body.gs-nav-ready .os-shell > .sidebar,
-body.gs-nav-ready aside.sidebar,
-body.gs-nav-ready .sidebar,
-body.gs-nav-ready .sidebar.is-open {
-  display: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
-  overflow: hidden !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transform: translateX(-120%) !important;
-}
-
-body.gs-nav-ready .sidebar-scrim {
-  display: none !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
-}
-
 body.gs-nav-ready .os-shell {
   display: block !important;
   padding-left: var(--gs-nav-w);
@@ -387,7 +367,7 @@ body.gs-nav-collapsed .gs-nav-reopen {
 
 #gs-nav .gs-footer-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   gap: 6px;
 }
 
@@ -460,40 +440,12 @@ body.gs-nav-collapsed .gs-nav-reopen {
     backdrop-filter: blur(4px);
   }
   body.gs-nav-open #gs-nav-overlay { display: block; }
-
-  body.gs-nav-ready .sidebar,
-  body.gs-nav-ready .sidebar.is-open {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    z-index: -1 !important;
+  html:has(body.gs-nav-open),
+  body.gs-nav-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
   }
-  body.gs-nav-ready .sidebar-scrim {
-    display: none !important;
-    pointer-events: none !important;
-  }
-}
 
-.gs-user-admin-fab {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 50;
-  border: 0;
-  border-radius: 999px;
-  padding: 12px 18px;
-  background: linear-gradient(180deg, #d8ff2e, #cdfb05);
-  color: #050508;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 0 28px rgba(205, 251, 5, 0.3);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.gs-user-admin-fab:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 36px rgba(205, 251, 5, 0.4);
 }
 
 .gs-user-admin-modal {
@@ -564,11 +516,13 @@ body.gs-nav-collapsed .gs-nav-reopen {
 .gs-user-admin-card .button.danger { background: #b42318; color: #fff; }
 .gs-user-admin-card .auth-error { min-height: 1.2em; color: #ff6b66; font-size: 13px; margin-top: 6px; }
 
-body.role-sales_manager .gs-user-admin-fab,
-body.role-designer .gs-user-admin-fab { display: none; }
-
 body.role-sales_manager .form-modal .form-section-title:nth-of-type(3),
 body.role-sales_manager .form-modal label:has(input[name='founderHours']),
 body.role-sales_manager .form-modal label:has(input[name='contractorHours']) {
+  display: none !important;
+}
+
+/* Единственная точка «Создать» — #gs-create-btn в #gs-nav. */
+.top-create {
   display: none !important;
 }

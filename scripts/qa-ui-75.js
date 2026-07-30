@@ -40,7 +40,7 @@ const SECTIONS = {
     'Проекты',
     'Команда и сроки',
     'Деньги',
-    'Расчёт стоимости',
+    'Себестоимость',
     'Прайс',
     'История',
     'Отчёты',
@@ -165,6 +165,17 @@ async function runNavigationBlock(browser, block, role, viewports) {
           continue;
         }
         const { problems, state } = await inspect(page, { expectTitle: section });
+        if (role === 'founder' && section === 'Настройки' && vp.name === 'desktop') {
+          const teamButton = page.locator('#gs-nav-team');
+          if (!(await teamButton.isVisible())) {
+            problems.push('кнопка управления командой недоступна в навигации');
+          } else {
+            await teamButton.click();
+            const teamModal = page.locator('#gs-user-admin-modal');
+            if (!(await teamModal.isVisible())) problems.push('модалка управления командой не открылась');
+            await page.locator('#gs-user-admin-close').click();
+          }
+        }
         record(block, name, problems, { heading: state.heading });
       }
     } catch (err) {
@@ -195,12 +206,12 @@ async function runEdgeBlock(browser) {
     attachCollectors(page);
     try {
       await login(page, 'founder');
-      await openSection(page, 'Расчёт стоимости');
+      await openSection(page, 'Себестоимость');
       await page.getByRole('spinbutton', { name: 'Цена продажи сум' }).fill(c.price);
       await page.getByRole('spinbutton', { name: 'Всего часов' }).fill(c.hours);
       await page.getByRole('spinbutton', { name: 'Часы основателя' }).fill(c.founderHours);
       await page.waitForTimeout(400);
-      const { problems, state } = await inspect(page, { expectTitle: 'Расчёт стоимости' });
+      const { problems, state } = await inspect(page, { expectTitle: 'Себестоимость' });
       const margin = await page.evaluate(() => document.querySelector('.donut span strong')?.textContent?.trim() || '');
       if (!margin) problems.push('маржа не отрисована');
       record(block, c.name, problems, { margin, heading: state.heading });
@@ -243,7 +254,7 @@ async function runEdgeBlock(browser) {
   }
 
   // D13–D16: перезагрузка внутри раздела — состояние должно восстанавливаться
-  for (const section of ['Расчёт стоимости', 'Отчёты', 'Готовность системы', 'Настройки']) {
+  for (const section of ['Себестоимость', 'Отчёты', 'Готовность системы', 'Настройки']) {
     const context = await browser.newContext({ viewport: { width: DESKTOP.width, height: DESKTOP.height } });
     const page = await context.newPage();
     attachCollectors(page);
@@ -270,7 +281,7 @@ async function runEdgeBlock(browser) {
     try {
       await login(page, 'founder');
       for (let i = 0; i < 3; i += 1) {
-        for (const s of ['Заявки', 'Расчёт стоимости', 'Отчёты', 'Проекты']) {
+        for (const s of ['Заявки', 'Себестоимость', 'Отчёты', 'Проекты']) {
           await openSection(page, s);
         }
       }
@@ -293,9 +304,9 @@ async function runEdgeBlock(browser) {
       await page.locator('.mobile-menu').first().click();
       await page.waitForTimeout(350);
       const opened = await page.evaluate(() => document.body.classList.contains('gs-nav-open'));
-      await openSection(page, 'Расчёт стоимости');
+      await openSection(page, 'Себестоимость');
       const closed = await page.evaluate(() => !document.body.classList.contains('gs-nav-open'));
-      const { problems } = await inspect(page, { expectTitle: 'Расчёт стоимости' });
+      const { problems } = await inspect(page, { expectTitle: 'Себестоимость' });
       if (!opened) problems.push('drawer не открылся по гамбургеру');
       if (!closed) problems.push('drawer не закрылся после перехода');
       record(block, 'мобильный drawer: открыть → перейти → закрыть', problems);
@@ -370,10 +381,24 @@ async function runEdgeBlock(browser) {
       const visible = await page.evaluate(() =>
         [...document.querySelectorAll('#gs-nav .gs-item')].map((el) => el.dataset.target).filter(Boolean)
       );
+      const navArchitecture = await page.evaluate(() => ({
+        directApi: typeof window.__gsNavigate === 'function',
+        reactSidebars: document.querySelectorAll('.sidebar').length,
+        teamFabs: document.querySelectorAll('.gs-user-admin-fab').length,
+        mobileTabs: [...document.querySelectorAll('.mobile-tabs button')].map((el) =>
+          (el.textContent || '').trim()
+        ),
+      }));
       const leaked = visible.filter((t) => !SECTIONS.sales_manager.includes(t));
       const { problems } = await inspect(page);
       if (leaked.length) problems.push(`менеджеру видны лишние разделы: ${leaked.join(', ')}`);
-      record(block, 'роль sales_manager: нет лишних разделов', problems, { visible });
+      if (!navArchitecture.directApi) problems.push('нет прямого API навигации');
+      if (navArchitecture.reactSidebars) problems.push('React-sidebar всё ещё присутствует');
+      if (navArchitecture.teamFabs) problems.push('дублирующий FAB «Команда» всё ещё присутствует');
+      record(block, 'роль sales_manager: нет лишних разделов', problems, {
+        visible,
+        navArchitecture,
+      });
     } catch (err) {
       record(block, 'роль sales_manager: нет лишних разделов', [`исключение: ${err.message}`]);
     } finally {

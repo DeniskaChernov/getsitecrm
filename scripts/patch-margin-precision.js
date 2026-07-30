@@ -47,8 +47,8 @@ const replacements = [
     'children:[globalThis.__gsMoney.fmtPct(e.margin,1),` маржа`]',
   ],
   [
-    'text:`Расчёт стоимости · маржа ${e.margin.toFixed(1)}%`',
-    'text:`Расчёт стоимости · маржа ${globalThis.__gsMoney.fmtPct(e.margin,1)}`',
+    'text:`Себестоимость · маржа ${e.margin.toFixed(1)}%`',
+    'text:`Себестоимость · маржа ${globalThis.__gsMoney.fmtPct(e.margin,1)}`',
   ],
 ];
 

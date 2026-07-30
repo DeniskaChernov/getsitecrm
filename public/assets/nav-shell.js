@@ -3,23 +3,29 @@
  * Скрывает разрозненный sidebar приложения и ведёт по рабочим сценариям.
  */
 
-/** Подписи разделов в шапке — по ним подсвечиваем активный пункт меню */
-const SECTION_TITLES = [
-  'Главная',
-  'Заявки',
-  'Клиенты',
-  'Сметы',
-  'Проекты',
-  'Команда и сроки',
-  'Деньги',
-  'Расчёт стоимости',
-  'Прайс',
-  'Скрипты продаж',
-  'История',
-  'Отчёты',
-  'Настройки',
-  'Готовность системы',
-];
+/** Единый реестр: internal — единственное значение для state/API/sessionStorage. */
+const SECTIONS = Object.freeze({
+  home: { internal: 'Главная', title: 'Главная', nav: 'Главная' },
+  leads: { internal: 'Заявки', title: 'Заявки', nav: 'Заявки' },
+  clients: { internal: 'Клиенты', title: 'Клиенты', nav: 'Клиенты' },
+  estimates: { internal: 'Сметы', title: 'Сметы', nav: 'Сметы' },
+  projects: { internal: 'Проекты', title: 'Проекты', nav: 'Проекты' },
+  team: { internal: 'Команда и сроки', title: 'Команда и сроки', nav: 'Команда и сроки' },
+  money: { internal: 'Оплаты и расходы', title: 'Деньги', nav: 'Деньги' },
+  costs: { internal: 'Unit Economics', title: 'Себестоимость', nav: 'Себестоимость' },
+  price: { internal: 'Прайс', title: 'Прайс', nav: 'Прайс' },
+  scripts: { internal: 'Скрипты продаж', title: 'Скрипты продаж', nav: 'Скрипты продаж' },
+  history: { internal: 'История', title: 'История', nav: 'История' },
+  reports: { internal: 'Аналитика', title: 'Отчёты', nav: 'Отчёты' },
+  settings: { internal: 'Настройки', title: 'Настройки', nav: 'Настройки' },
+  readiness: { internal: 'Готовность', title: 'Готовность системы', nav: 'Готовность системы' },
+});
+
+function sectionByValue(value) {
+  return Object.values(SECTIONS).find((section) =>
+    [section.internal, section.title, section.nav].includes(value)
+  );
+}
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -34,50 +40,50 @@ const NAV_TREE = [
   {
     id: 'home',
     title: null,
-    items: [{ id: 'home', label: 'Сегодня', target: 'Главная', icon: 'home' }],
+    items: [{ id: 'home', section: 'home', icon: 'home' }],
   },
   {
     id: 'sales',
     title: '1. Продажи',
     items: [
-      { id: 'leads', label: 'Заявки', target: 'Заявки', icon: 'inbox', hint: 'Входящие' },
-      { id: 'clients', label: 'Клиенты', target: 'Клиенты', icon: 'users' },
-      { id: 'estimates', label: 'Сметы / КП', target: 'Сметы', icon: 'file', hint: 'Цены клиенту' },
-      { id: 'scripts', label: 'Скрипты', target: 'Скрипты продаж', icon: 'chat' },
+      { id: 'leads', section: 'leads', icon: 'inbox', hint: 'Входящие' },
+      { id: 'clients', section: 'clients', icon: 'users' },
+      { id: 'estimates', section: 'estimates', icon: 'file', hint: 'Цены клиенту' },
+      { id: 'scripts', section: 'scripts', icon: 'chat' },
     ],
   },
   {
     id: 'work',
     title: '2. Производство',
     items: [
-      { id: 'projects', label: 'Проекты', target: 'Проекты', icon: 'layers' },
-      { id: 'team', label: 'Сроки', target: 'Команда и сроки', icon: 'calendar' },
+      { id: 'projects', section: 'projects', icon: 'layers' },
+      { id: 'team', section: 'team', icon: 'calendar' },
     ],
   },
   {
     id: 'money',
     title: '3. Деньги',
     items: [
-      { id: 'payments', label: 'Оплаты', target: 'Деньги', icon: 'wallet' },
-      { id: 'calc', label: 'Себестоимость', target: 'Расчёт стоимости', icon: 'calc' },
-      { id: 'price', label: 'Прайс (цены)', target: 'Прайс', icon: 'tag' },
+      { id: 'payments', section: 'money', icon: 'wallet' },
+      { id: 'calc', section: 'costs', icon: 'calc' },
+      { id: 'price', section: 'price', icon: 'tag' },
     ],
   },
 ];
 
 const MORE_ITEMS = [
-  { id: 'history', label: 'История', target: 'История', icon: 'clock' },
-  { id: 'reports', label: 'Отчёты', target: 'Отчёты', icon: 'chart' },
-  { id: 'settings', label: 'Настройки', target: 'Настройки', icon: 'gear' },
-  { id: 'ready', label: 'Готовность', target: 'Готовность системы', icon: 'check' },
+  { id: 'history', section: 'history', icon: 'clock' },
+  { id: 'reports', section: 'reports', icon: 'chart' },
+  { id: 'settings', section: 'settings', icon: 'gear' },
+  { id: 'ready', section: 'readiness', icon: 'check' },
 ];
 
 const CREATE_ACTIONS = [
-  { label: 'Заявка', desc: 'Новый лид в воронку', target: 'Заявки', click: 'Новая заявка|Создать заявку|Добавить заявку' },
-  { label: 'Клиент', desc: 'Карточка компании', target: 'Клиенты', click: 'Добавить клиента' },
-  { label: 'Смета / КП', desc: 'Состав и цена клиенту', target: 'Сметы', click: 'Новая смета' },
-  { label: 'Проект', desc: 'В работу после сделки', target: 'Проекты', click: 'Создать проект' },
-  { label: 'Оплата', desc: 'Деньги по проекту', target: 'Деньги', click: 'Зафиксировать оплату|Добавить оплату' },
+  { label: 'Заявка', desc: 'Новый лид в воронку', section: 'leads', click: 'Новая заявка|Создать заявку|Добавить заявку' },
+  { label: 'Клиент', desc: 'Карточка компании', section: 'clients', click: 'Добавить клиента' },
+  { label: 'Смета / КП', desc: 'Состав и цена клиенту', section: 'estimates', click: 'Новая смета' },
+  { label: 'Проект', desc: 'В работу после сделки', section: 'projects', click: 'Создать проект' },
+  { label: 'Оплата', desc: 'Деньги по проекту', section: 'money', click: 'Зафиксировать оплату|Добавить оплату' },
 ];
 
 const ROLE_ALLOWED = {
@@ -88,7 +94,7 @@ const ROLE_ALLOWED = {
     'Клиенты',
     'Сметы',
     'Проекты',
-    'Деньги',
+    'Оплаты и расходы',
     'Прайс',
     'Скрипты продаж',
     'История',
@@ -118,59 +124,46 @@ function iconSvg(name) {
   return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[name] || paths.home}</svg>`;
 }
 
-/** Подпись раздела в нашем меню → внутренняя метка приложения / API */
-const TARGET_TO_INTERNAL = {
-  Деньги: 'Оплаты и расходы',
-  'Расчёт стоимости': 'Unit Economics',
-  Отчёты: 'Аналитика',
-  'Готовность системы': 'Готовность',
-};
-
-function toInternalLabel(target) {
-  return TARGET_TO_INTERNAL[target] || target;
+function toInternalLabel(value) {
+  return sectionByValue(value)?.internal || null;
 }
 
-function isAllowed(role, target, rolesFromApi) {
+function isAllowed(role, value, rolesFromApi) {
+  const internal = toInternalLabel(value);
+  if (!internal) return false;
   if (rolesFromApi?.[role]?.sections) {
-    const sections = rolesFromApi[role].sections;
-    return sections.includes(toInternalLabel(target)) || sections.includes(target);
+    return rolesFromApi[role].sections.includes(internal);
   }
   const set = ROLE_ALLOWED[role];
   if (!set) return true;
-  return set.has(target);
-}
-
-function findOriginalButton(target) {
-  const buttons = [...document.querySelectorAll('nav button.nav-item, .nav-list button.nav-item, .sidebar button')];
-  return buttons.find((btn) => {
-    const text = (btn.textContent || '').replace(/\s+/g, ' ').trim();
-    return text.startsWith(target) || text.includes(target);
-  });
+  return set.has(internal);
 }
 
 /**
- * Переход в раздел. Кнопки приложения монтируются асинхронно, поэтому ждём их
- * появления: иначе клик сразу после логина молча терялся.
+ * Прямой переход через API React-state. Скрытый sidebar больше не существует.
  */
-function goToSection(target, attempts = 24) {
-  const internal = toInternalLabel(target);
-  window.sessionStorage.setItem('getsite-os-section', internal);
+function goToSection(value, attempts = 24) {
+  const internal = toInternalLabel(value);
+  if (!internal) throw new Error(`Неизвестный раздел: ${value}`);
 
-  const tryClick = (left) => {
-    const btn = findOriginalButton(target) || findOriginalButton(internal);
-    if (btn) {
-      btn.click();
+  const navigate = (left) => {
+    if (typeof window.__gsNavigate === 'function') {
+      window.__gsNavigate(internal);
       return;
     }
-    if (left <= 0) return;
-    setTimeout(() => tryClick(left - 1), 120);
+    if (left <= 0) {
+      console.error(`Навигация React не готова: ${internal}`);
+      return;
+    }
+    setTimeout(() => navigate(left - 1), 120);
   };
-  tryClick(attempts);
+  navigate(attempts);
 }
 
-function syncActive(target) {
+function syncActive(value) {
+  const internal = toInternalLabel(value);
   document.querySelectorAll('#gs-nav .gs-item').forEach((el) => {
-    el.classList.toggle('active', el.dataset.target === target);
+    el.classList.toggle('active', el.dataset.section === internal);
   });
 }
 
@@ -179,8 +172,10 @@ function watchActiveSection() {
     const strong = document.querySelector('.topbar .crumb strong, banner strong, .crumb strong');
     const title = (strong?.textContent || '').trim();
     if (!title) return;
-    const match = SECTION_TITLES.find((k) => title === k || title.startsWith(k));
-    if (match) syncActive(match);
+    const match = Object.values(SECTIONS).find(
+      (section) => title === section.title || title.startsWith(section.title)
+    );
+    if (match) syncActive(match.internal);
   };
   update();
   const obs = new MutationObserver(update);
@@ -188,7 +183,9 @@ function watchActiveSection() {
 }
 
 function filterCreateActions(role, rolesFromApi) {
-  return CREATE_ACTIONS.filter((a) => isAllowed(role, a.target, rolesFromApi));
+  return CREATE_ACTIONS.filter((action) =>
+    isAllowed(role, SECTIONS[action.section].internal, rolesFromApi)
+  );
 }
 
 function findActionButton(clickPattern) {
@@ -241,31 +238,38 @@ function buildNav(user, rolesFromApi) {
           : user.position || 'Пользователь');
 
   const groupsHtml = NAV_TREE.map((group) => {
-    const items = group.items.filter((item) => isAllowed(role, item.target, rolesFromApi));
+    const items = group.items.filter((item) =>
+      isAllowed(role, SECTIONS[item.section].internal, rolesFromApi)
+    );
     if (!items.length) return '';
     return `
       <div class="gs-group" data-group="${group.id}">
         ${group.title ? `<div class="gs-group-title">${group.title}</div>` : ''}
         ${items
           .map(
-            (item) => `
-          <button type="button" class="gs-item" data-target="${item.target}" data-id="${item.id}">
+            (item) => {
+              const section = SECTIONS[item.section];
+              return `
+          <button type="button" class="gs-item" data-target="${section.title}" data-section="${section.internal}" data-id="${item.id}">
             ${iconSvg(item.icon)}
-            <span>${item.label}</span>
-          </button>`
+            <span>${section.nav}</span>
+          </button>`;
+            }
           )
           .join('')}
       </div>`;
   }).join('');
 
-  const moreItems = MORE_ITEMS.filter((item) => isAllowed(role, item.target, rolesFromApi));
+  const moreItems = MORE_ITEMS.filter((item) =>
+    isAllowed(role, SECTIONS[item.section].internal, rolesFromApi)
+  );
   const createItems = filterCreateActions(role, rolesFromApi);
 
   const root = document.createElement('aside');
   root.id = 'gs-nav';
   root.innerHTML = `
     <div class="gs-top">
-      <button type="button" class="gs-brand" data-target="Главная" aria-label="getsite OS — на главную">
+      <button type="button" class="gs-brand" data-target="Главная" data-section="Главная" aria-label="getsite OS — на главную">
         <img class="gs-brand-mark" src="/assets/logo-getsite.png" alt="getsite*" />
       </button>
       <div class="gs-create">
@@ -276,7 +280,7 @@ function buildNav(user, rolesFromApi) {
           ${createItems
             .map(
               (a) => `
-            <button type="button" data-create-target="${a.target}" data-create-click="${a.click}">
+            <button type="button" data-create-section="${SECTIONS[a.section].internal}" data-create-click="${a.click}">
               ${a.label}<small>${a.desc}</small>
             </button>`
             )
@@ -297,10 +301,13 @@ function buildNav(user, rolesFromApi) {
               <div class="gs-more-panel" id="gs-more-panel">
                 ${moreItems
                   .map(
-                    (item) => `
-                  <button type="button" class="gs-item" data-target="${item.target}">
-                    ${iconSvg(item.icon)}<span>${item.label}</span>
-                  </button>`
+                    (item) => {
+                      const section = SECTIONS[item.section];
+                      return `
+                  <button type="button" class="gs-item" data-target="${section.title}" data-section="${section.internal}">
+                    ${iconSvg(item.icon)}<span>${section.nav}</span>
+                  </button>`;
+                    }
                   )
                   .join('')}
               </div>
@@ -317,7 +324,8 @@ function buildNav(user, rolesFromApi) {
         </div>
       </div>
       <div class="gs-footer-actions">
-        ${isAllowed(role, 'Настройки', rolesFromApi) ? `<button type="button" data-target="Настройки">Настройки</button>` : `<button type="button" data-target="История">История</button>`}
+        ${isAllowed(role, 'Настройки', rolesFromApi) ? `<button type="button" data-target="Настройки" data-section="Настройки">Настройки</button>` : `<button type="button" data-target="История" data-section="История">История</button>`}
+        ${role === 'founder' ? `<button type="button" id="gs-nav-team">Команда</button>` : ''}
         <button type="button" id="gs-nav-logout">Выйти</button>
       </div>
     </div>
@@ -440,16 +448,21 @@ function buildNav(user, rolesFromApi) {
       return;
     }
 
-    const createItem = e.target.closest('[data-create-target]');
+    const team = e.target.closest('#gs-nav-team');
+    if (team) {
+      window.__gsOpenUserAdmin?.();
+      return;
+    }
+
+    const createItem = e.target.closest('[data-create-section]');
     if (createItem) {
-      const target = createItem.dataset.createTarget;
-      go(target);
+      go(createItem.dataset.createSection);
       openCreateAction(createItem.dataset.createClick);
       return;
     }
 
-    const item = e.target.closest('[data-target]');
-    if (item?.dataset.target) go(item.dataset.target);
+    const item = e.target.closest('[data-section]');
+    if (item?.dataset.section) go(item.dataset.section);
   });
 
   document.addEventListener('click', (e) => {
@@ -496,6 +509,12 @@ function buildNav(user, rolesFromApi) {
         setCreateOpen(false);
         setNavCollapsed(next);
       }
+
+      if (!typing && (e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        setCreateOpen(true);
+      }
     },
     true
   );
@@ -506,12 +525,6 @@ function buildNav(user, rolesFromApi) {
     setNavOpen(false);
     setCreateOpen(false);
   });
-
-  // Убиваем оригинальный React-drawer (светлая панель поверх контента)
-  const killReactSidebar = () => {
-    document.querySelectorAll('.sidebar.is-open').forEach((el) => el.classList.remove('is-open'));
-    document.querySelectorAll('.sidebar-scrim').forEach((el) => el.remove());
-  };
 
   // Клон без React onClick — обработчик только на document (capture)
   const claimMobileBurger = () => {
@@ -528,26 +541,9 @@ function buildNav(user, rolesFromApi) {
     syncDrawerA11y();
   };
   claimMobileBurger();
-  new MutationObserver((mutations) => {
-    let needClaim = false;
-    let reactDrawer = false;
-    for (const m of mutations) {
-      if (m.type === 'childList') needClaim = true;
-      if (
-        m.type === 'attributes' &&
-        m.target?.classList?.contains?.('sidebar') &&
-        m.target.classList.contains('is-open')
-      ) {
-        reactDrawer = true;
-      }
-    }
-    if (needClaim) claimMobileBurger();
-    if (reactDrawer) killReactSidebar();
-  }).observe(document.body, {
+  new MutationObserver(() => claimMobileBurger()).observe(document.body, {
     childList: true,
     subtree: true,
-    attributes: true,
-    attributeFilter: ['class'],
   });
 
   // Capture на document: React делегирует клики на #root — перехватываем раньше
@@ -561,13 +557,7 @@ function buildNav(user, rolesFromApi) {
         e.stopImmediatePropagation();
         setNavOpen(!document.body.classList.contains('gs-nav-open'));
         setCreateOpen(false);
-        killReactSidebar();
-        requestAnimationFrame(killReactSidebar);
         return;
-      }
-      if (e.target.closest?.('.sidebar-scrim')) {
-        setNavOpen(false);
-        killReactSidebar();
       }
     },
     true
@@ -590,9 +580,9 @@ function buildNav(user, rolesFromApi) {
     document.body.appendChild(overlay);
   }
 
-  // Wait for React sidebar then sync
+  // Wait for direct React navigation API, then enable active-section sync
   const boot = setInterval(() => {
-    if (findOriginalButton('Главная')) {
+    if (typeof window.__gsNavigate === 'function') {
       clearInterval(boot);
       syncActive('Главная');
       watchActiveSection();
@@ -606,7 +596,7 @@ export function mountNavShell(user, rolesFromApi) {
   if (!document.querySelector('link[href*="nav-shell.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/nav-shell.css?v=20260730d';
+    link.href = '/assets/nav-shell.css?v=20260730e';
     document.head.appendChild(link);
   }
   buildNav(user, rolesFromApi);

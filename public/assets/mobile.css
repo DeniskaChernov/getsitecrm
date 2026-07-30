@@ -158,7 +158,7 @@
   body.gs-nav-ready .page-wrap,
   body.gs-nav-ready .workspace > main,
   body.gs-nav-ready main.page-wrap {
-    padding: 16px 14px 132px !important;
+    padding: 16px 14px 96px !important;
     max-width: 100% !important;
   }
 
@@ -345,15 +345,6 @@
 
   .receive-payment {
     min-height: 44px !important;
-  }
-
-  /* FAB над нижней панелью; поднят выше, чтобы не перекрывать карточки */
-  .gs-user-admin-fab {
-    right: max(12px, env(safe-area-inset-right)) !important;
-    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
-    padding: 12px 14px !important;
-    font-size: 13px !important;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 20px rgba(205, 251, 5, 0.25) !important;
   }
 
   .toast {

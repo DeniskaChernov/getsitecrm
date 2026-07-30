@@ -1,7 +1,7 @@
 import { r as jsxFactory, t as reactDomFactory } from './framework-CXnKph_e.js';
-import App from './os-client-DeMZwioN.js';
-import { mountNavShell } from './nav-shell.js?v=20260730d';
-import './ui-fix.js?v=20260730d';
+import App from './os-client-DeMZwioN.js?v=20260730e';
+import { mountNavShell } from './nav-shell.js?v=20260730e';
+import './ui-fix.js?v=20260730e';
 
 const jsxRuntime = jsxFactory();
 const ReactDOM = reactDomFactory();
@@ -44,6 +44,7 @@ function renderAuth(demoHints = false) {
   document.body.classList.remove('gs-nav-ready', 'gs-nav-open');
   document.getElementById('gs-nav')?.remove();
   document.getElementById('gs-user-admin')?.remove();
+  delete window.__gsOpenUserAdmin;
 
   rootEl.innerHTML = `
     <div class="auth-shell">
@@ -102,6 +103,7 @@ function renderAuth(demoHints = false) {
 function applyRoleToDom(user, roles) {
   document.body.classList.remove('role-founder', 'role-sales_manager', 'role-designer');
   document.body.classList.add(`role-${user.systemRole}`);
+  window.__gsAllowedSections = [...(roles?.[user.systemRole]?.sections || [])];
   mountNavShell(user, roles);
   if (user.systemRole === 'founder') mountUserAdmin(user);
 }
@@ -111,7 +113,6 @@ function mountUserAdmin(user) {
   const panel = document.createElement('div');
   panel.id = 'gs-user-admin';
   panel.innerHTML = `
-    <button type="button" class="gs-user-admin-fab" id="gs-user-admin-open" title="Пользователи">Команда</button>
     <div class="gs-user-admin-modal" id="gs-user-admin-modal" hidden>
       <div class="gs-user-admin-card">
         <header>
@@ -152,7 +153,7 @@ function mountUserAdmin(user) {
   panel.querySelector('#gs-user-password input[name="email"]').placeholder = String(user.email || '');
 
   const modal = document.getElementById('gs-user-admin-modal');
-  document.getElementById('gs-user-admin-open').onclick = () => {
+  window.__gsOpenUserAdmin = () => {
     modal.hidden = false;
   };
   document.getElementById('gs-user-admin-close').onclick = () => {

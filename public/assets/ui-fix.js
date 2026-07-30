@@ -78,38 +78,4 @@
     });
   }
 
-  // Mobile nav overlay click closes sidebar
-  document.addEventListener(
-    'click',
-    (e) => {
-      if (!document.body.classList.contains('gs-nav-open')) return;
-      if (e.target.closest('#gs-nav')) return;
-      if (e.target.closest('.mobile-menu')) return;
-      // ::after overlay is on body — clicks hit elements under; use body listener
-      if (e.target === document.body || e.target.classList?.contains('sidebar-scrim')) {
-        closeMobileNav();
-      }
-    },
-    true
-  );
-
-  // Overlay: следим только за class на body (не весь subtree)
-  function ensureMobileOverlay() {
-    let el = document.getElementById('gs-nav-overlay');
-    if (el) return el;
-    el = document.createElement('div');
-    el.id = 'gs-nav-overlay';
-    el.setAttribute('aria-hidden', 'true');
-    el.addEventListener('click', () => closeMobileNav());
-    document.body.appendChild(el);
-    return el;
-  }
-
-  ensureMobileOverlay();
-  if (document.body) {
-    new MutationObserver(() => ensureMobileOverlay()).observe(document.body, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-  }
 })();

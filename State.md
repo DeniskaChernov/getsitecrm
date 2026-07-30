@@ -13,6 +13,16 @@
 - Шрифты Google CDN → self-hosted Fontsource (CSP не ослаблен).
 - QA: 32/32 unit/security, acceptance OK, stress 75/75 + wave2 75/75, UI 75/75. Cache `20260730d`.
 
+## 2026-07-30 Navigation consolidation
+- Единственный sidebar: React sidebar/scrim удалены из bundle; `#gs-nav` вызывает React state через `window.__gsNavigate`, без DOM-click fallback.
+- `SECTIONS` — единый registry internal/title/nav; role checks используют API internal labels.
+- Mobile tabs фильтруются по `window.__gsAllowedSections`; drawer блокирует scroll.
+- Дубли убраны: React top Create скрыт, `N` открывает `#gs-create`; Team FAB удалён, доступ перенесён в footer nav.
+- `Unit Economics / Расчёт стоимости / Себестоимость` унифицировано в UI как `Себестоимость`; internal остаётся `Unit Economics`.
+- Overlay создаёт только nav-shell; удалены sidebar/FAB CSS и лишний mobile padding.
+- Patch: `scripts/patch-navigation-unify.js` idempotent, `npm run patch:navigation`.
+- QA: unit 32/32, UI 75/75; проверяет direct API, отсутствие React-sidebar/FAB и открытие Team modal. Cache `20260730e`.
+
 ## 2026-07-30 Railway AUTH_* переменные
 - Сервис `getsitecrm` (проект getsite.uz): AUTH_DENIS/NIKITA/MANAGER/DESIGNER_{EMAIL,PASSWORD}.
 - Пароли сейчас `__SET_ME__` (плейсхолдер) — юзер сам вписывает секреты в Railway Variables.

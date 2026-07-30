@@ -20,7 +20,8 @@
     "patch:roles": "node scripts/patch-roles-ui.js",
     "patch:finance": "node scripts/patch-fixed-share.js",
     "patch:funnel": "node scripts/patch-funnel-status.js",
-    "patch:margin": "node scripts/patch-margin-precision.js"
+    "patch:margin": "node scripts/patch-margin-precision.js",
+    "patch:navigation": "node scripts/patch-navigation-unify.js"
   },
   "engines": {
     "node": ">=18"
